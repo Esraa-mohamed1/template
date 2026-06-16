@@ -22,6 +22,8 @@ import CategoriesPage from "./pages/CategoriesPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
+import BuilderPage from "./pages/BuilderPage";
+import AdminLogin from "./components/admin/AdminLogin";
 
 import { User, Order, Transaction, CartItem } from "./types";
 import { ProductDetail } from "./types/api";
@@ -169,7 +171,7 @@ function AppContent() {
             path="/"
             element={
               <HomePage
-                onProductClick={(p: { slug?: string; id: string }) =>
+                onProductClick={(p: any) =>
                   navigate(`/product/${p.slug ?? p.id}`)
                 }
                 onCategoryClick={(cat: string) =>
@@ -257,6 +259,28 @@ function AppContent() {
                 onBack={() => navigate("/cart")}
                 onComplete={handleCheckoutComplete}
               />
+            }
+          />
+
+          <Route
+            path="/admin/builder"
+            element={
+              authLoading ? (
+                <div className="min-h-screen flex items-center justify-center text-gray-400 bg-[#070b19]">
+                  Loading...
+                </div>
+              ) : currentUser && currentUser.role === 'admin' ? (
+                <BuilderPage 
+                  currentUser={currentUser} 
+                  onLogout={handleLogout} 
+                />
+              ) : (
+                <AdminLogin 
+                  onLoginSuccess={(user) => {
+                    setCurrentUser(user);
+                  }} 
+                />
+              )
             }
           />
         </Routes>

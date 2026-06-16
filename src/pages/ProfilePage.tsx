@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, History, Wallet, User as UserIcon, Settings, LogOut, CreditCard, Navigation, Smartphone, Banknote, Check } from 'lucide-react';
 import { User, Order, Transaction } from '../types';
@@ -13,6 +14,7 @@ interface ProfilePageProps {
 }
 
 const ProfilePage = ({ user, orders, transactions, onLogout, onUpdateUser }: ProfilePageProps) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'history' | 'settings' | 'edit' | 'transactions'>('history');
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
@@ -53,6 +55,15 @@ const ProfilePage = ({ user, orders, transactions, onLogout, onUpdateUser }: Pro
                   {tab.label}
                 </button>
               ))}
+              {user.role === 'admin' && (
+                <button 
+                  onClick={() => navigate('/admin/builder')}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-blue-500 hover:bg-blue-50 transition-all border border-dashed border-blue-200 mt-4 cursor-pointer"
+                >
+                  <Settings size={16} />
+                  باني الصفحات (Admin)
+                </button>
+              )}
               <button 
                 onClick={onLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-50 transition-all mt-6"

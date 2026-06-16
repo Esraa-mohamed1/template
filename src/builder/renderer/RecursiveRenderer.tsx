@@ -13,8 +13,8 @@ import NavbarBlock from '../components/NavbarBlock';
 import TabsBlock from '../components/TabsBlock';
 import MetricsCards from '../components/MetricsCards';
 import SectionShapeOverlay from '../components/SectionShapeOverlay';
-import SortableSection from '@/builder/dnd/SortableSection';
-import SortableWidget from '@/builder/dnd/SortableWidget';
+import SortableSection from '../dnd/SortableSection';
+import SortableWidget from '../dnd/SortableWidget';
 
 // ─── Section Background Wrapper ───────────────────────────────────────────────
 

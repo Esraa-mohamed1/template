@@ -4,6 +4,9 @@ export interface User {
   email: string;
   avatar: string;
   joinedAt: string;
+  phone?: string | null;
+  role?: string;
+  isVerified?: boolean;
 }
 
 export interface Order {
