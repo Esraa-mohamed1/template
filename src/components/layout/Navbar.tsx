@@ -8,9 +8,10 @@ interface NavbarProps {
   onLogoClick: () => void;
   onCategoryClick: (category: string) => void;
   onUserClick: () => void;
+  onBuilderClick: () => void;
 }
 
-const Navbar = ({ cartCount, onCartClick, onLogoClick, onCategoryClick, onUserClick }: NavbarProps) => (
+const Navbar = ({ cartCount, onCartClick, onLogoClick, onCategoryClick, onUserClick, onBuilderClick }: NavbarProps) => (
   <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div 
@@ -26,6 +27,7 @@ const Navbar = ({ cartCount, onCartClick, onLogoClick, onCategoryClick, onUserCl
         <button onClick={() => onCategoryClick('Women')} className="hover:text-brand-blue transition-colors cursor-pointer">Women</button>
         <button onClick={() => onCategoryClick('Children')} className="hover:text-brand-blue transition-colors cursor-pointer">Children</button>
         <button onClick={() => onCategoryClick('Winter')} className="hover:text-brand-blue transition-colors cursor-pointer">Winter Sale</button>
+        <button onClick={onBuilderClick} className="text-blue-500 hover:text-blue-600 font-extrabold transition-colors cursor-pointer">Builder ✨</button>
       </div>
 
       <div className="flex items-center gap-4">

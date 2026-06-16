@@ -55,15 +55,13 @@ const ProfilePage = ({ user, orders, transactions, onLogout, onUpdateUser }: Pro
                   {tab.label}
                 </button>
               ))}
-              {user.role === 'admin' && (
-                <button 
-                  onClick={() => navigate('/admin/builder')}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-blue-500 hover:bg-blue-50 transition-all border border-dashed border-blue-200 mt-4 cursor-pointer"
-                >
-                  <Settings size={16} />
-                  باني الصفحات (Admin)
-                </button>
-              )}
+              <button 
+                onClick={() => navigate('/admin/builder')}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-blue-500 hover:bg-blue-50 transition-all border border-dashed border-blue-200 mt-4 cursor-pointer"
+              >
+                <Settings size={16} />
+                باني الصفحات (Admin)
+              </button>
               <button 
                 onClick={onLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-50 transition-all mt-6"

@@ -163,6 +163,7 @@ function AppContent() {
           navigate(`/categories?cat=${encodeURIComponent(cat)}`)
         }
         onUserClick={() => navigate(currentUser ? "/profile" : "/auth")}
+        onBuilderClick={() => navigate("/admin/builder")}
       />
 
       <main className="flex-grow">
@@ -265,22 +266,18 @@ function AppContent() {
           <Route
             path="/admin/builder"
             element={
-              authLoading ? (
-                <div className="min-h-screen flex items-center justify-center text-gray-400 bg-[#070b19]">
-                  Loading...
-                </div>
-              ) : currentUser && currentUser.role === 'admin' ? (
-                <BuilderPage 
-                  currentUser={currentUser} 
-                  onLogout={handleLogout} 
-                />
-              ) : (
-                <AdminLogin 
-                  onLoginSuccess={(user) => {
-                    setCurrentUser(user);
-                  }} 
-                />
-              )
+              <BuilderPage 
+                currentUser={currentUser || {
+                  id: 'admin-auto',
+                  name: 'المسؤول العام',
+                  email: 'admin@darab.academy',
+                  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+                  joinedAt: new Date().getFullYear().toString(),
+                  role: 'admin',
+                  isVerified: true
+                }} 
+                onLogout={handleLogout} 
+              />
             }
           />
         </Routes>
