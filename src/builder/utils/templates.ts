@@ -1,6 +1,82 @@
 import { TemplateSchema } from '../interfaces';
 
 export const MOCK_TEMPLATES: Record<string, TemplateSchema> = {
+  'e-commerce-home': {
+    id: 'e-commerce-home',
+    name: 'قالب الصفحة الرئيسية للمتجر',
+    description: 'قالب الصفحة الرئيسية للمتجر الإلكتروني (E-Commerce) مع أقسام الهيرو، التصنيفات، العروض، والمزيد.',
+    status: 'draft',
+    version: '1.0',
+    updatedAt: new Date().toISOString(),
+    sections: [
+      {
+        id: 'home-hero-1',
+        type: 'home-hero',
+        props: {
+          avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop',
+          avatarText: 'E.buy is the right place for you to buy your fashion clothes with a reasonable price and trust.',
+          titlePart1: 'You can feel',
+          titlePart2: 'fashion',
+          titlePart3: 'sense.',
+          buttonText: 'Shop Now',
+          secondButtonText: 'Learn More',
+          img1: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop',
+          img2: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop',
+          img3: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop'
+        }
+      },
+      {
+        id: 'home-categories-1',
+        type: 'home-categories',
+        props: {
+          title: 'Popular categories'
+        }
+      },
+      {
+        id: 'home-products-1',
+        type: 'home-products',
+        props: {
+          showDivider: true
+        }
+      },
+      {
+        id: 'home-why-choose-us-1',
+        type: 'home-why-choose-us',
+        props: {
+          title: 'Why choose us',
+          buttonText: 'Shop Now',
+          feature1_title: 'First Delivery',
+          feature1_desc: 'We take care of the set-up process, aggregating all your existing online.',
+          feature2_title: '24/7 Online Support',
+          feature2_desc: 'Respond and resolve your customer queries instantly by implementing live chat.',
+          feature3_title: '4.9 Ratings',
+          feature3_desc: "Here's to the people who leave online reviews! So you can take your decision.",
+          feature4_title: '10 Years Services',
+          feature4_desc: 'Check out our 10 years of service awards, program tips, and strategies.'
+        }
+      },
+      {
+        id: 'home-testimonials-1',
+        type: 'home-testimonials',
+        props: {
+          title: 'What our clients say',
+          testimonialText: '"My husband and I went for dinner in restaurant X and really enjoyed the atmosphere. The food was fresh and delicious and the best part was that the chef sent us a dessert they created that day. We were delighted to be the part of their business."'
+        }
+      },
+      {
+        id: 'home-instagram-grid-1',
+        type: 'home-instagram-grid',
+        props: {
+          title: 'Connect with us',
+          instagramHandle: '@Instagram',
+          img1: 'https://images.unsplash.com/photo-1529139570274-c3445ff24be9?q=80&w=400&auto=format&fit=crop',
+          img2: 'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=400&auto=format&fit=crop',
+          img3: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=400&auto=format&fit=crop',
+          img4: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop'
+        }
+      }
+    ]
+  },
   'academy-dashboard': {
     id: 'academy-dashboard',
     name: 'لوحة التحكم الكلاسيكية (المتكاملة)',

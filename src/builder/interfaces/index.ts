@@ -36,7 +36,7 @@ export interface ComponentFieldConfig {
 export interface ComponentRegistryEntry {
   type: string;
   name: string;
-  category: 'layout' | 'content' | 'data' | 'navigation';
+  category: 'layout' | 'content' | 'data' | 'navigation' | 'ecommerce';
   icon: string;
   fields: ComponentFieldConfig[];
   defaultProps: Record<string, any>;

@@ -1,27 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import Hero from "../components/home/Hero";
-import Categories from "../components/home/Categories";
-import SectionBlock from "../components/home/BestOffers"; // ✅
-import WhyChooseUs from "../components/home/WhyChooseUs";
-import Testimonials from "../components/home/Testimonials";
-import InstagramGrid from "../components/home/InstagramGrid";
+import RecursiveRenderer from "../builder/renderer/RecursiveRenderer";
+import { MOCK_TEMPLATES } from "../builder/utils/templates";
 import { Product } from "../types";
-import { HomeSection } from "../types/api";
-import { homeSectionService } from "../services/homeSectionService";
 
 interface HomePageProps {
   onProductClick: (p: Product) => void;
   onCategoryClick: (c: string) => void;
-  key?: React.Key;
 }
 
 const HomePage = ({ onProductClick, onCategoryClick }: HomePageProps) => {
-  const [sections, setSections] = useState<HomeSection[]>([]);
+  const [template, setTemplate] = useState<any>(null);
 
   useEffect(() => {
-    homeSectionService.getAll().then((res) => setSections(res.data));
+    // Attempt to load the saved template from LocalStorage
+    const saved = localStorage.getItem("darab_builder_template_e-commerce-home");
+    if (saved) {
+      try {
+        setTemplate(JSON.parse(saved));
+        return;
+      } catch (e) {
+        console.error("Failed to parse saved e-commerce-home template", e);
+      }
+    }
+    // Fallback to default mock template
+    setTemplate(MOCK_TEMPLATES["e-commerce-home"]);
   }, []);
+
+  if (!template) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-light">
+        <div className="text-gray-500 font-bold text-lg animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -30,23 +42,12 @@ const HomePage = ({ onProductClick, onCategoryClick }: HomePageProps) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <Hero />
-      <div id="home-categories-nav">
-        <Categories onCategoryClick={onCategoryClick} />
-      </div>
-
-      {/* ✅ اللوب هنا */}
-      {sections.map((section) => (
-        <SectionBlock
-          key={section.id}
-          section={section}
-          onProductClick={(id) => onProductClick({ id: String(id) } as Product)}
-        />
-      ))}
-
-      <WhyChooseUs />
-      <Testimonials />
-      <InstagramGrid />
+      <RecursiveRenderer 
+        nodes={template.sections} 
+        onProductClick={onProductClick}
+        onCategoryClick={onCategoryClick}
+        forcePreview={true}
+      />
     </motion.div>
   );
 };

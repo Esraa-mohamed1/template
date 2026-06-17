@@ -74,7 +74,7 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
   // Load active template on mount
   useEffect(() => {
     if (!currentTemplate) {
-      const activeId = localStorage.getItem('darab_active_template') || 'academy-dashboard';
+      const activeId = localStorage.getItem('darab_active_template') || 'e-commerce-home';
       const saved = localStorage.getItem(`darab_builder_template_${activeId}`);
       if (saved) {
         try {
@@ -84,7 +84,7 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
           console.error("Failed to parse saved draft template", e);
         }
       }
-      loadTemplate(MOCK_TEMPLATES[activeId] || MOCK_TEMPLATES['academy-dashboard']);
+      loadTemplate(MOCK_TEMPLATES[activeId] || MOCK_TEMPLATES['e-commerce-home']);
     }
   }, [currentTemplate, loadTemplate]);
 
@@ -138,7 +138,8 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
     layout: 'التخطيط والهيكل',
     content: 'المحتوى والواجهات',
     data: 'البيانات والتقارير',
-    navigation: 'التنقل والتوجيه'
+    navigation: 'التنقل والتوجيه',
+    ecommerce: 'عناصر المتجر (E-Commerce)'
   };
 
   // Group registry keys by category
@@ -186,10 +187,11 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
           <div className="flex items-center gap-2">
             <FolderOpen className="w-4 h-4 text-slate-400" />
             <select
-              value={currentTemplate?.id || 'academy-dashboard'}
+              value={currentTemplate?.id || 'e-commerce-home'}
               onChange={handleTemplateChange}
               className="bg-slate-800/80 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-200 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
             >
+              <option value="e-commerce-home">قالب الصفحة الرئيسية للمتجر</option>
               <option value="academy-dashboard">لوحة التحكم الكلاسيكية</option>
               <option value="template_2">لوحة التحكم الفيروزية</option>
               <option value="template_3">القالب الأرجواني الإبداعي</option>

@@ -12,6 +12,12 @@ import SidebarBlock from '../components/SidebarBlock';
 import NavbarBlock from '../components/NavbarBlock';
 import TabsBlock from '../components/TabsBlock';
 import MetricsCards from '../components/MetricsCards';
+import HomeHero from '../components/HomeHero';
+import HomeCategories from '../components/HomeCategories';
+import HomeProducts from '../components/HomeProducts';
+import HomeWhyChooseUs from '../components/HomeWhyChooseUs';
+import HomeTestimonials from '../components/HomeTestimonials';
+import HomeInstagramGrid from '../components/HomeInstagramGrid';
 import SectionShapeOverlay from '../components/SectionShapeOverlay';
 import SortableSection from '../dnd/SortableSection';
 import SortableWidget from '../dnd/SortableWidget';
@@ -74,9 +80,18 @@ function SectionBackground({ node, children }: { node: BuilderNode; children: Re
 interface RecursiveRendererProps {
   nodes: BuilderNode[];
   isNested?: boolean;
+  onProductClick?: (product: any) => void;
+  onCategoryClick?: (categorySlug: string) => void;
+  forcePreview?: boolean;
 }
 
-export default function RecursiveRenderer({ nodes, isNested = false }: RecursiveRendererProps) {
+export default function RecursiveRenderer({ 
+  nodes, 
+  isNested = false,
+  onProductClick,
+  onCategoryClick,
+  forcePreview = false
+}: RecursiveRendererProps) {
   const {
     isEditing,
     selectedNodeId,
@@ -125,6 +140,18 @@ export default function RecursiveRenderer({ nodes, isNested = false }: Recursive
         return <TabsBlock {...props} />;
       case 'metrics':
         return <MetricsCards {...props} />;
+      case 'home-hero':
+        return <HomeHero {...props} onCategoryClick={onCategoryClick} />;
+      case 'home-categories':
+        return <HomeCategories {...props} onCategoryClick={onCategoryClick} />;
+      case 'home-products':
+        return <HomeProducts {...props} onProductClick={onProductClick} />;
+      case 'home-why-choose-us':
+        return <HomeWhyChooseUs {...props} onCategoryClick={onCategoryClick} />;
+      case 'home-testimonials':
+        return <HomeTestimonials {...props} />;
+      case 'home-instagram-grid':
+        return <HomeInstagramGrid {...props} />;
       default:
         return (
           <div className="p-4 border border-dashed border-red-200 text-center text-xs text-red-500 font-bold bg-red-50/50 rounded-xl">
@@ -148,7 +175,8 @@ export default function RecursiveRenderer({ nodes, isNested = false }: Recursive
         const isSelected = selectedNodeId === node.id;
         const isHovered = hoveredNodeId === node.id;
 
-        if (isEditing) {
+        const showEditingUI = isEditing && !forcePreview;
+        if (showEditingUI) {
           if (!isNested) {
             return (
               <SortableSection key={node.id} id={node.id}>
