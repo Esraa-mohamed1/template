@@ -21,6 +21,14 @@ import HomeInstagramGrid from '../components/HomeInstagramGrid';
 import SectionShapeOverlay from '../components/SectionShapeOverlay';
 import SortableSection from '../dnd/SortableSection';
 import SortableWidget from '../dnd/SortableWidget';
+// New ecommerce sections
+import EcommerceHeroBanner from '../components/EcommerceHeroBanner';
+import EcommerceProductGrid from '../components/EcommerceProductGrid';
+import EcommerceFlashSale from '../components/EcommerceFlashSale';
+import EcommerceCategoryGrid from '../components/EcommerceCategoryGrid';
+import EcommercePromoBanner from '../components/EcommercePromoBanner';
+import EcommerceTestimonials from '../components/EcommerceTestimonials';
+import EcommerceNewsletterCTA from '../components/EcommerceNewsletterCTA';
 
 // ─── Section Background Wrapper ───────────────────────────────────────────────
 
@@ -152,6 +160,21 @@ export default function RecursiveRenderer({
         return <HomeTestimonials {...props} />;
       case 'home-instagram-grid':
         return <HomeInstagramGrid {...props} />;
+      // ─── New Ecommerce Sections ───────────────────────────────────────────────
+      case 'ecommerce-hero':
+        return <EcommerceHeroBanner {...props} />;
+      case 'ecommerce-product-grid':
+        return <EcommerceProductGrid {...props} />;
+      case 'ecommerce-flash-sale':
+        return <EcommerceFlashSale {...props} />;
+      case 'ecommerce-category-grid':
+        return <EcommerceCategoryGrid {...props} />;
+      case 'ecommerce-promo-banner':
+        return <EcommercePromoBanner {...props} />;
+      case 'ecommerce-testimonials':
+        return <EcommerceTestimonials {...props} />;
+      case 'ecommerce-newsletter':
+        return <EcommerceNewsletterCTA {...props} />;
       default:
         return (
           <div className="p-4 border border-dashed border-red-200 text-center text-xs text-red-500 font-bold bg-red-50/50 rounded-xl">

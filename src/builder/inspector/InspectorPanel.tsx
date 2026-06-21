@@ -12,7 +12,8 @@ import {
   AlignRight, 
   AlignCenter, 
   AlignLeft,
-  ChevronLeft
+  ChevronLeft,
+  LayoutTemplate
 } from 'lucide-react';
 
 // Subcomponents
@@ -26,10 +27,12 @@ import MetricsCardsEditor from './components/MetricsCardsEditor';
 import TabsBlockEditor from './components/TabsBlockEditor';
 import HeroSliderEditor from './components/HeroSliderEditor';
 import ImageUploader from './components/ImageUploader';
+import FramesPicker, { FRAMES_BY_TYPE } from './components/FramesPicker';
+import BackendDataNote from './components/BackendDataNote';
 
 export default function InspectorPanel() {
   const { selectedNodeId, currentTemplate, updateNodeProps, setSelectedNodeId } = useBuilderStore();
-  const [activeTab, setActiveTab] = useState<'content' | 'style' | 'spacing'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'style' | 'frames' | 'spacing'>('content');
   const [isSimpleMode, setIsSimpleMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('darab_builder_simple_mode');
@@ -37,6 +40,32 @@ export default function InspectorPanel() {
     }
     return true;
   });
+
+  // Backend-data sections and their admin pages
+  const BACKEND_SECTIONS: Record<string, { pageName: string; pageLink: string; description: string }> = {
+    'home-products': {
+      pageName: 'صفحة المنتجات',
+      pageLink: '/admin/products',
+      description: 'هذا القسم يعرض بيانات المنتجات والعروض مباشرةً من الخادم. لتعديل المنتجات أو إضافة عروض جديدة، يُرجى الذهاب إلى صفحة إدارة المنتجات.',
+    },
+    'home-categories': {
+      pageName: 'صفحة التصنيفات',
+      pageLink: '/admin/categories',
+      description: 'هذا القسم يعرض تصنيفات المتجر من الخادم. لتعديل التصنيفات وترتيبها، يُرجى الذهاب إلى صفحة إدارة التصنيفات.',
+    },
+    'ecommerce-product-grid': {
+      pageName: 'صفحة المنتجات',
+      pageLink: '/admin/products',
+      description: 'هذا القسم يعرض بيانات المنتجات الحية من الخادم. لإضافة أو تعديل المنتجات المعروضة، اذهب إلى صفحة إدارة المنتجات.',
+    },
+    'ecommerce-flash-sale': {
+      pageName: 'صفحة العروض والتخفيضات',
+      pageLink: '/admin/offers',
+      description: 'هذا القسم يعرض عروض Flash Sale من الخادم. لتحديد المنتجات المضمّنة في العرض وفترته الزمنية، اذهب إلى صفحة إدارة العروض.',
+    },
+  };
+
+
 
   const toggleSimpleMode = (val: boolean) => {
     setIsSimpleMode(val);
@@ -169,8 +198,20 @@ export default function InspectorPanel() {
           }`}
         >
           <Paintbrush className="w-3.5 h-3.5" />
-          التنسيق
+          النمط
         </button>
+        {/* Frames tab — visible for sections that have frame options */}
+        {FRAMES_BY_TYPE[selectedNode.type] && FRAMES_BY_TYPE[selectedNode.type].length > 0 && (
+          <button
+            onClick={() => setActiveTab('frames')}
+            className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
+              activeTab === 'frames' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <LayoutTemplate className="w-3.5 h-3.5" />
+            الإطارات
+          </button>
+        )}
         {!isSimpleMode && (
           <button
             onClick={() => setActiveTab('spacing')}
@@ -189,6 +230,15 @@ export default function InspectorPanel() {
         
         {activeTab === 'content' && (
           <div className="space-y-5">
+            {/* Backend data note — shown at the top for API-driven sections */}
+            {BACKEND_SECTIONS[selectedNode.type] && (
+              <BackendDataNote
+                pageName={BACKEND_SECTIONS[selectedNode.type].pageName}
+                pageLink={BACKEND_SECTIONS[selectedNode.type].pageLink}
+                description={BACKEND_SECTIONS[selectedNode.type].description}
+              />
+            )}
+
             {contentFields.map((field) => (
               <div key={field.name} className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 pr-1 block">
@@ -424,6 +474,17 @@ export default function InspectorPanel() {
               props={props}
               handlePropChange={handlePropChange}
               isSimpleMode={isSimpleMode}
+            />
+          </div>
+        )}
+
+        {/* ─── Frames Tab ─────────────────────────────────────────────── */}
+        {activeTab === 'frames' && (
+          <div className="space-y-4">
+            <FramesPicker
+              nodeType={selectedNode.type}
+              currentFrame={props.layoutFrame || ''}
+              onFrameChange={(frameId) => handlePropChange('layoutFrame', frameId)}
             />
           </div>
         )}
