@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBuilderStore } from '../builder/store/builderStore';
 import { COMPONENT_REGISTRY } from '../builder/registry/componentRegistry';
 import { MOCK_TEMPLATES } from '../builder/utils/templates';
+import { getSections, saveSections, apiToEditor, editorToApi } from '../services/pages';
 import CanvasContainer from '../builder/canvas/CanvasContainer';
 import InspectorPanel from '../builder/inspector/InspectorPanel';
 import { 
@@ -53,6 +54,8 @@ interface BuilderPageProps {
 
 export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const pageId = searchParams.get('pageId') || '1';
   const { 
     currentTemplate, 
     loadTemplate, 
@@ -73,8 +76,34 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
 
   // Load active template on mount
   useEffect(() => {
-    if (!currentTemplate) {
-      const activeId = localStorage.getItem('darab_active_template') || 'e-commerce-home';
+    const fetchPageSections = async () => {
+      let activeId = searchParams.get('templateId');
+      if (!activeId) {
+        activeId = localStorage.getItem('darab_active_template') || 'e-commerce-home';
+      }
+
+      if (pageId) {
+        try {
+          const apiSections = await getSections(pageId);
+          if (apiSections && apiSections.length > 0) {
+            const editorNodes = apiToEditor(apiSections);
+            loadTemplate({
+              id: activeId || 'dynamic-page',
+              name: 'صفحة ديناميكية من السيرفر',
+              status: 'published',
+              version: '1.0',
+              updatedAt: new Date().toISOString(),
+              sections: editorNodes
+            });
+            return;
+          }
+        } catch (err) {
+          console.error('Failed to load sections from backend:', err);
+          showNotification('فشل تحميل البيانات من السيرفر، تم التحميل محلياً.', 'info');
+        }
+      }
+
+      // Fallback: load from local storage or static templates
       const saved = localStorage.getItem(`darab_builder_template_${activeId}`);
       if (saved) {
         try {
@@ -85,8 +114,12 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
         }
       }
       loadTemplate(MOCK_TEMPLATES[activeId] || MOCK_TEMPLATES['e-commerce-home']);
+    };
+
+    if (!currentTemplate) {
+      fetchPageSections();
     }
-  }, [currentTemplate, loadTemplate]);
+  }, [currentTemplate, loadTemplate, pageId, searchParams]);
 
   const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
     setNotification({ message, type });
@@ -124,14 +157,38 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
     showNotification(`تمت إضافة مكون ${config.name}`);
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     saveDraft();
-    showNotification('تم حفظ المسودة في الذاكرة المحلية (LocalStorage)');
+    if (pageId && currentTemplate) {
+      try {
+        showNotification('جاري الحفظ في السيرفر...', 'info');
+        const apiSections = editorToApi(currentTemplate.sections, pageId);
+        await saveSections(pageId, apiSections);
+        showNotification('تم حفظ المسودة في السيرفر والذاكرة المحلية بنجاح!', 'success');
+      } catch (err) {
+        console.error('Failed to save draft to server:', err);
+        showNotification('خطأ أثناء حفظ المسودة في السيرفر', 'info');
+      }
+    } else {
+      showNotification('تم حفظ المسودة في الذاكرة المحلية (LocalStorage)');
+    }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     publishTemplate();
-    showNotification('تم نشر التغييرات وتحديث رقم الإصدار بنجاح', 'success');
+    if (pageId && currentTemplate) {
+      try {
+        showNotification('جاري نشر المظهر...', 'info');
+        const apiSections = editorToApi(currentTemplate.sections, pageId);
+        await saveSections(pageId, apiSections);
+        showNotification('تم نشر التغييرات وتحديث رقم الإصدار بنجاح', 'success');
+      } catch (err) {
+        console.error('Failed to publish to server:', err);
+        showNotification('خطأ أثناء نشر التغييرات في السيرفر', 'info');
+      }
+    } else {
+      showNotification('تم نشر التغييرات وتحديث رقم الإصدار بنجاح', 'success');
+    }
   };
 
   const categoryLabels: Record<string, string> = {
