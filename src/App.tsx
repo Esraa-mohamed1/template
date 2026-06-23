@@ -24,6 +24,8 @@ import ProfilePage from "./pages/ProfilePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import BuilderPage from "./pages/BuilderPage";
 import AdminLogin from "./components/admin/AdminLogin";
+import PagesPage from "./integrate/PagesPage";
+import BuilderPageAcademic from "./integrate/BuilderPage";
 
 import { User, Order, Transaction, CartItem } from "./types";
 import { ProductDetail } from "./types/api";
@@ -279,6 +281,16 @@ function AppContent() {
                 onLogout={handleLogout} 
               />
             }
+          />
+
+          <Route
+            path="/academic/website/pages"
+            element={<PagesPage />}
+          />
+
+          <Route
+            path="/academic/website/builder"
+            element={<BuilderPageAcademic />}
           />
         </Routes>
       </main>
