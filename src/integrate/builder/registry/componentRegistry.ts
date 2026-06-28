@@ -512,7 +512,7 @@ export const GallerySection = React.memo((props: any) => {
             onMouseLeave: () => isEditing && setHoveredItemIndex(null),
           },
           React.createElement('img', {
-            src: itemProps.image_url || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+            src: itemProps.image_url || itemProps.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
             alt: itemProps.caption || '',
             className: 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
           }),

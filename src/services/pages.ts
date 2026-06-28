@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BuilderNode } from '../builder/interfaces';
+import { ADMIN_API_BASE_URL } from '../config/api';
 
 // -----------------------------------------------------------------------
 // Types
@@ -83,9 +84,9 @@ const SECTION_DEFAULT_PROPS: Record<string, Record<string, any>> = {
 // -----------------------------------------------------------------------
 
 const academyApi = axios.create({
-  baseURL: 'https://api.darab.academy/api/academy',
+  baseURL: ADMIN_API_BASE_URL,
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
   },
 });
 
@@ -115,16 +116,17 @@ academyApi.interceptors.request.use((config) => {
 export const createPage = async (
   payload: CreatePagePayload
 ): Promise<CreatedPageResponse> => {
-  const formData = new URLSearchParams();
-  formData.append('title', payload.title);
-  formData.append('slug', payload.slug);
-  formData.append('status', payload.status);
-  if (payload.template) {
-    formData.append('template', payload.template);
-    formData.append('template_id', payload.template);
-  }
+  const jsonPayload = {
+    title: payload.title,
+    slug: payload.slug,
+    status: payload.status,
+    is_active: 1,
+    ...(payload.template ? { template: payload.template, template_id: payload.template } : {})
+  };
 
-  const response = await academyApi.post<any>('/pages', formData);
+  const response = await academyApi.post<any>('/pages', jsonPayload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
   const data = response.data?.data ?? response.data;
   if (!data) throw new Error('No data returned from pages API');
   return data as CreatedPageResponse;
@@ -174,7 +176,7 @@ export const saveSections = async (
   const numericPageId = isNaN(Number(pageId)) ? pageId : Number(pageId);
 
   const payload = {
-    pages_id: numericPageId,
+    page_id: numericPageId,
     sections: sections.map((section, index) => {
       const { pages_id: _pid, id: _id, ...rest } = section;
 
@@ -431,3 +433,36 @@ export function editorToApi(nodes: BuilderNode[], pageId: string | number): ApiS
     return section;
   });
 }
+
+// -----------------------------------------------------------------------
+// Get, Update, Delete Pages
+// -----------------------------------------------------------------------
+
+export const getPages = async (): Promise<any[]> => {
+  const response = await academyApi.get<any>('/pages');
+  const data = response.data?.data ?? response.data ?? [];
+  return (Array.isArray(data) ? data : []).map((item: any) => ({
+    id: String(item.id),
+    name: item.title || item.name || '',
+    slug: item.slug || '',
+    createdAt: item.created_at ? new Date(item.created_at).toLocaleDateString() : '',
+    status: item.status === 'published' ? 'published' : 'draft',
+    coverImage: item.cover_image || undefined,
+    templateId: item.template_id || undefined,
+  }));
+};
+
+export const updatePage = async (
+  pageId: string | number,
+  payload: Partial<CreatePagePayload> & { is_active?: number }
+): Promise<any> => {
+  const response = await academyApi.put<any>(`/pages/${pageId}`, payload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data?.data ?? response.data;
+};
+
+export const deletePage = async (pageId: string | number): Promise<any> => {
+  const response = await academyApi.delete<any>(`/pages/${pageId}`);
+  return response.data?.data ?? response.data;
+};

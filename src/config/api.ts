@@ -2,6 +2,7 @@
 
 export const API_BASE_URL = "http://127.0.0.1:8000/api/v1/front";
 export const AUTH_BASE_URL = "http://127.0.0.1:8000/api/v1/app/auth";
+export const ADMIN_API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
 export const AUTH_ENDPOINTS = {
   register: "/register",

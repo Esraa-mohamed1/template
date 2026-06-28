@@ -91,6 +91,134 @@ const findParentNode = (nodes: BuilderNode[], childId: string): BuilderNode | nu
   return null;
 };
 
+const findNodeInTree = (nodes: BuilderNode[], id: string): BuilderNode | null => {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    if (node.children && node.children.length > 0) {
+      const found = findNodeInTree(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const notifyParentOfSelectionAndStyle = (node: BuilderNode | null) => {
+  if (typeof window === 'undefined') return;
+
+  if (!node) {
+    window.parent.postMessage({
+      source: 'darab-builder',
+      action: 'node-selected',
+      selectedNodeId: null,
+      selectedNodeType: null,
+      properties: {},
+      colors: {},
+      sizes: {},
+      types: {},
+      frameStyle: null,
+      frameId: null
+    }, '*');
+    return;
+  }
+
+  const props = node.props || {};
+  const colors: Record<string, any> = {};
+  const sizes: Record<string, any> = {};
+  const types: Record<string, any> = {};
+  const properties: Record<string, any> = { ...props };
+
+  // Helper map for frame styles
+  const FRAME_STYLES_MAP: Record<string, Record<string, string | number>> = {
+    // Hero / Banner frames
+    'split-right': { flexDirection: 'row', alignItems: 'center', textAlign: 'right', imagePosition: 'right' },
+    'split-left': { flexDirection: 'row-reverse', alignItems: 'center', textAlign: 'right', imagePosition: 'left' },
+    'centered': { flexDirection: 'column', alignItems: 'center', textAlign: 'center', imagePosition: 'none' },
+    'fullwidth-overlay': { display: 'relative', minHeight: '420px', backgroundImageOverlay: 'true', textAlign: 'right' },
+    'half-left': { flexDirection: 'row', alignItems: 'center', imagePosition: 'right' },
+    'half-right': { flexDirection: 'row-reverse', alignItems: 'center', imagePosition: 'left' },
+    'split-2': { gridCols: 2 },
+    'fullwidth': { width: '100%' },
+
+    // Grid / Columns frames
+    '3-col': { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' },
+    '4-col': { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' },
+    '2-col': { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
+    'list': { display: 'flex', flexDirection: 'column' },
+    '4-col-icon': { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' },
+    '6-col-compact': { display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' },
+    '2-col-large': { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
+
+    // Testimonials / list frames
+    'cards-row': { display: 'flex', flexDirection: 'row', flexWrap: 'wrap' },
+    'featured-large': { layout: 'carousel', display: 'flex', flexDirection: 'column' },
+    'masonry': { display: 'grid', layout: 'masonry' },
+    '4-cards-row': { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' },
+    '2-col-list': { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
+
+    // Flash Sale frames
+    'dark-scroll': { background: 'dark', overflowX: 'scroll' },
+    'light-banner': { background: 'light', display: 'flex' },
+    'minimal': { layout: 'minimal', display: 'grid' },
+  };
+
+  // Classify props into colors, sizes, types
+  Object.keys(props).forEach((key) => {
+    const val = props[key];
+    const keyLower = key.toLowerCase();
+
+    const isColor = keyLower.includes('color') || 
+                    keyLower.includes('bg') || 
+                    keyLower.includes('theme') ||
+                    (typeof val === 'string' && (val.startsWith('#') || val.startsWith('rgba') || val.startsWith('rgb')));
+
+    const isSize = keyLower.includes('size') || 
+                   keyLower.includes('padding') || 
+                   keyLower.includes('margin') || 
+                   keyLower.includes('height') || 
+                   keyLower.includes('width') || 
+                   keyLower.includes('limit') || 
+                   keyLower.includes('cols') || 
+                   keyLower.includes('opacity') || 
+                   keyLower.includes('overlay') || 
+                   keyLower.includes('gap') ||
+                   (typeof val === 'number') ||
+                   (typeof val === 'string' && (val.startsWith('py-') || val.startsWith('px-') || val.startsWith('my-') || val.startsWith('mx-') || val.startsWith('w-') || val.startsWith('h-')));
+
+    const isType = keyLower.includes('type') || 
+                   keyLower.includes('layout') || 
+                   keyLower.includes('frame') || 
+                   keyLower.includes('align') || 
+                   keyLower.includes('font') || 
+                   keyLower.includes('weight') || 
+                   keyLower.includes('style') || 
+                   keyLower.includes('shape');
+
+    if (isColor) {
+      colors[key] = val;
+    } else if (isSize) {
+      sizes[key] = val;
+    } else if (isType) {
+      types[key] = val;
+    }
+  });
+
+  const frameId = props.layoutFrame || '';
+  const frameStyle = frameId ? (FRAME_STYLES_MAP[frameId] || { id: frameId }) : null;
+
+  window.parent.postMessage({
+    source: 'darab-builder',
+    action: 'node-selected',
+    selectedNodeId: node.id,
+    selectedNodeType: node.type,
+    properties,
+    colors,
+    sizes,
+    types,
+    frameStyle,
+    frameId
+  }, '*');
+};
+
 export const useBuilderStore = create<BuilderState>((set, get) => ({
   currentTemplate: null,
   selectedNodeId: null,
@@ -111,7 +239,16 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     });
   },
 
-  setSelectedNodeId: (id) => set({ selectedNodeId: id }),
+  setSelectedNodeId: (id) => {
+    set({ selectedNodeId: id });
+    const state = get();
+    if (state.currentTemplate) {
+      const node = id ? findNodeInTree(state.currentTemplate.sections, id) : null;
+      notifyParentOfSelectionAndStyle(node);
+    } else {
+      notifyParentOfSelectionAndStyle(null);
+    }
+  },
   setHoveredNodeId: (id) => set({ hoveredNodeId: id }),
   setDeviceMode: (mode) => set({ deviceMode: mode }),
   setIsEditing: (isEditing) => set({ isEditing }),
@@ -138,6 +275,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         historyPast: [...historyPast, oldSections],
         historyFuture: [] // Reset redo stack on action
       });
+      const updatedNode = findNodeInTree(newSections, id);
+      notifyParentOfSelectionAndStyle(updatedNode);
     }
   },
 
@@ -178,6 +317,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       historyPast: [...historyPast, oldSections],
       historyFuture: []
     });
+    notifyParentOfSelectionAndStyle(node);
   },
 
   deleteNode: (id) => {
@@ -190,17 +330,20 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     const removed = findAndRemoveNode(newSections, id);
 
     if (removed) {
+      const nextSelectedId = selectedNodeId === id ? null : selectedNodeId;
       set({
         currentTemplate: {
           ...currentTemplate,
           sections: newSections,
           updatedAt: new Date().toISOString()
         },
-        selectedNodeId: selectedNodeId === id ? null : selectedNodeId,
+        selectedNodeId: nextSelectedId,
         hoveredNodeId: hoveredNodeId === id ? null : hoveredNodeId,
         historyPast: [...historyPast, oldSections],
         historyFuture: []
       });
+      const nextSelectedNode = nextSelectedId ? findNodeInTree(newSections, nextSelectedId) : null;
+      notifyParentOfSelectionAndStyle(nextSelectedNode);
     }
   },
 
@@ -266,6 +409,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         historyPast: [...historyPast, oldSections],
         historyFuture: []
       });
+      notifyParentOfSelectionAndStyle(duplicatedClone);
     }
   },
 
@@ -407,6 +551,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       historyFuture: [currentSections, ...historyFuture],
       selectedNodeId: null // Clear selection to prevent invalid inspectors
     });
+    notifyParentOfSelectionAndStyle(null);
   },
 
   redo: () => {
@@ -427,6 +572,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       historyFuture: newFuture,
       selectedNodeId: null
     });
+    notifyParentOfSelectionAndStyle(null);
   },
 
   saveDraft: () => {

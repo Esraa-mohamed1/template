@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
-import { CreatePagePayload } from '@/services/pages';
+import { CreatePagePayload, getPages, updatePage, deletePage } from '@/services/pages';
 import { AcademyPage } from '../../interfaces';
 
 const INITIAL_PAGES: AcademyPage[] = [
@@ -21,29 +21,57 @@ export function usePagesManager() {
   const [pendingPage, setPendingPage] = useState<AcademyPage | null>(null);
   const [pendingPagePayload, setPendingPagePayload] = useState<CreatePagePayload | null>(null);
 
-  // Load pages from local storage if available
+  // Load pages from backend API
   useEffect(() => {
-    const cached = localStorage.getItem('darab_academy_pages');
-    if (cached) {
+    const fetchPages = async () => {
       try {
-        setPages(JSON.parse(cached));
-      } catch (e) {
-        console.error('Failed to load academy pages:', e);
+        const backendPages = await getPages();
+        if (backendPages && backendPages.length > 0) {
+          setPages(backendPages);
+          localStorage.setItem('darab_academy_pages', JSON.stringify(backendPages));
+        } else {
+          // If backend returns empty, load from cache or fallback
+          const cached = localStorage.getItem('darab_academy_pages');
+          if (cached) {
+            setPages(JSON.parse(cached));
+          } else {
+            setPages(INITIAL_PAGES);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch pages from backend:', err);
+        const cached = localStorage.getItem('darab_academy_pages');
+        if (cached) {
+          try {
+            setPages(JSON.parse(cached));
+          } catch (e) {
+            console.error('Failed to parse cached pages:', e);
+          }
+        } else {
+          setPages(INITIAL_PAGES);
+        }
       }
-    }
+    };
+
+    fetchPages();
   }, []);
 
-  const saveToStorage = (updatedList: AcademyPage[]) => {
-    setPages(updatedList);
-    localStorage.setItem('darab_academy_pages', JSON.stringify(updatedList));
-  };
-
-  const handleToggleStatus = (id: string, newStatus: 'published' | 'draft') => {
+  const handleToggleStatus = async (id: string, newStatus: 'published' | 'draft') => {
+    const originalPages = [...pages];
     const updated = pages.map(page =>
       page.id === id ? { ...page, status: newStatus } : page
     );
-    saveToStorage(updated);
-    toast.success(newStatus === 'published' ? 'تم نشر الصفحة بنجاح!' : 'تم إلغاء نشر الصفحة.');
+    setPages(updated);
+
+    try {
+      await updatePage(id, { status: newStatus });
+      localStorage.setItem('darab_academy_pages', JSON.stringify(updated));
+      toast.success(newStatus === 'published' ? 'تم نشر الصفحة بنجاح!' : 'تم إلغاء نشر الصفحة.');
+    } catch (err) {
+      console.error('Failed to update page status on server:', err);
+      setPages(originalPages); // rollback
+      toast.error('فشل تحديث حالة الصفحة على السيرفر.');
+    }
   };
 
   const handleDeletePage = async (id: string, name: string) => {
@@ -62,13 +90,23 @@ export function usePagesManager() {
     });
 
     if (result.isConfirmed) {
+      const originalPages = [...pages];
       const updated = pages.filter(page => page.id !== id);
-      saveToStorage(updated);
-      toast.success('تم حذف الصفحة بنجاح.');
+      setPages(updated);
+
+      try {
+        await deletePage(id);
+        localStorage.setItem('darab_academy_pages', JSON.stringify(updated));
+        toast.success('تم حذف الصفحة بنجاح.');
+      } catch (err) {
+        console.error('Failed to delete page on server:', err);
+        setPages(originalPages); // rollback
+        toast.error('فشل حذف الصفحة من السيرفر.');
+      }
     }
   };
 
-  const handleSavePageDetails = (updatedPage: AcademyPage, pagePayload?: CreatePagePayload) => {
+  const handleSavePageDetails = async (updatedPage: AcademyPage, pagePayload?: CreatePagePayload) => {
     if (isCreating && pagePayload) {
       setPendingPage(updatedPage);
       setPendingPagePayload(pagePayload);
@@ -78,10 +116,23 @@ export function usePagesManager() {
       return;
     }
 
-    let updated: AcademyPage[];
-    updated = pages.map(p => p.id === updatedPage.id ? { ...p, ...updatedPage } : p);
-    toast.success('تم حفظ تعديلات الصفحة بنجاح!');
-    saveToStorage(updated);
+    const originalPages = [...pages];
+    const updated = pages.map(p => p.id === updatedPage.id ? { ...p, ...updatedPage } : p);
+    setPages(updated);
+
+    try {
+      await updatePage(updatedPage.id, {
+        title: updatedPage.name,
+        slug: updatedPage.slug,
+        status: updatedPage.status,
+      });
+      localStorage.setItem('darab_academy_pages', JSON.stringify(updated));
+      toast.success('تم حفظ تعديلات الصفحة بنجاح!');
+    } catch (err) {
+      console.error('Failed to update page details on server:', err);
+      setPages(originalPages); // rollback
+      toast.error('فشل تعديل بيانات الصفحة على السيرفر.');
+    }
     setCurrentEditPage(null);
     setIsCreating(false);
   };
@@ -94,7 +145,8 @@ export function usePagesManager() {
         templateId: templateId
       };
       const updated = [...pages, newPage];
-      saveToStorage(updated);
+      setPages(updated);
+      localStorage.setItem('darab_academy_pages', JSON.stringify(updated));
     }
     setShowTemplatePicker(false);
     setPendingPagePayload(null);
