@@ -20,11 +20,7 @@ import {
 // Subcomponents
 import SectionBackgroundControls from './components/SectionBackgroundControls';
 import TypographyCustomizer, { EDITABLE_LINES } from './components/TypographyCustomizer';
-import KpiCardsEditor from './components/KpiCardsEditor';
-import CourseCardsEditor from './components/CourseCardsEditor';
-import StudentFeedEditor from './components/StudentFeedEditor';
-import TableBlockEditor from './components/TableBlockEditor';
-import MetricsCardsEditor from './components/MetricsCardsEditor';
+
 import TabsBlockEditor from './components/TabsBlockEditor';
 import HeroSliderEditor from './components/HeroSliderEditor';
 import ImageUploader from './components/ImageUploader';
@@ -358,48 +354,7 @@ export default function InspectorPanel() {
             ))}
 
             {/* Custom List Editors */}
-            {selectedNode.type === 'kpi-cards' && (
-              <KpiCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-                showIconDropdown={showIconDropdown}
-                setShowIconDropdown={setShowIconDropdown}
-                iconSearch={iconSearch}
-                setIconSearch={setIconSearch}
-              />
-            )}
 
-            {selectedNode.type === 'course-cards' && (
-              <CourseCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'student-feed' && (
-              <StudentFeedEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'tables' && (
-              <TableBlockEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'metrics' && (
-              <MetricsCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-                showIconDropdown={showIconDropdown}
-                setShowIconDropdown={setShowIconDropdown}
-                iconSearch={iconSearch}
-                setIconSearch={setIconSearch}
-              />
-            )}
 
             {selectedNode.type === 'tabs' && (
               <TabsBlockEditor 

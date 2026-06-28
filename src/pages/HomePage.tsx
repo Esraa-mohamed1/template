@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import RecursiveRenderer from "../builder/renderer/RecursiveRenderer";
 import { MOCK_TEMPLATES } from "../builder/utils/templates";
+import { getSections, apiToEditor } from "../services/pages";
 import { Product } from "../types";
 
 interface HomePageProps {
@@ -13,18 +14,33 @@ const HomePage = ({ onProductClick, onCategoryClick }: HomePageProps) => {
   const [template, setTemplate] = useState<any>(null);
 
   useEffect(() => {
-    // Attempt to load the saved template from LocalStorage
-    const saved = localStorage.getItem("darab_builder_template_e-commerce-home");
-    if (saved) {
+    const loadHomeTemplate = async () => {
       try {
-        setTemplate(JSON.parse(saved));
-        return;
-      } catch (e) {
-        console.error("Failed to parse saved e-commerce-home template", e);
+        const apiSections = await getSections('1');
+        if (apiSections && apiSections.length > 0) {
+          const editorNodes = apiToEditor(apiSections);
+          setTemplate({ sections: editorNodes });
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to fetch home page sections from API:", err);
       }
-    }
-    // Fallback to default mock template
-    setTemplate(MOCK_TEMPLATES["e-commerce-home"]);
+
+      // Attempt to load the saved template from LocalStorage
+      const saved = localStorage.getItem("darab_builder_template_e-commerce-home");
+      if (saved) {
+        try {
+          setTemplate(JSON.parse(saved));
+          return;
+        } catch (e) {
+          console.error("Failed to parse saved e-commerce-home template", e);
+        }
+      }
+      // Fallback to default mock template
+      setTemplate(MOCK_TEMPLATES["e-commerce-home"]);
+    };
+
+    loadHomeTemplate();
   }, []);
 
   if (!template) {

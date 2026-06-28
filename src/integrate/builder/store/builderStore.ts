@@ -214,6 +214,13 @@ const notifyParentOfSelectionAndStyle = (node: BuilderNode | null) => {
   const frameId = props.layoutFrame || '';
   const frameStyle = frameId ? (FRAME_STYLES_MAP[frameId] || { id: frameId }) : null;
 
+  // Include colors, sizes, types, and frame information inside properties object
+  properties.colors = colors;
+  properties.sizes = sizes;
+  properties.types = types;
+  properties.frameId = frameId;
+  properties.frameStyle = frameStyle;
+
   window.parent.postMessage({
     source: 'darab-builder',
     action: 'node-selected',

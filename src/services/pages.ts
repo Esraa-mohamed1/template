@@ -382,6 +382,15 @@ export function editorToApi(nodes: BuilderNode[], pageId: string | number): ApiS
   return nodes.map((node, index) => {
     const rawNodeProps = safeParseProps(node.props);
     const { items, ...propsWithoutItems } = rawNodeProps;
+    // Omit list items for dynamic database-linked sections to preserve database values
+    const DYNAMIC_DB_SECTIONS = ['course-cards', 'student-feed', 'tables', 'charts', 'kpi-cards', 'metrics'];
+    if (DYNAMIC_DB_SECTIONS.includes(node.type)) {
+      delete propsWithoutItems.courses;
+      delete propsWithoutItems.activities;
+      delete propsWithoutItems.rows;
+      delete propsWithoutItems.cards;
+      delete propsWithoutItems.items;
+    }
 
     // ✅ لو props فاضية أو مفيش غير items، نجيب الـ defaults
     const hasRealProps = Object.keys(propsWithoutItems).length > 0;
@@ -426,7 +435,7 @@ export function editorToApi(nodes: BuilderNode[], pageId: string | number): ApiS
       props: finalProps,
     };
 
-    if (apiItems !== undefined) {
+    if (apiItems !== undefined && !DYNAMIC_DB_SECTIONS.includes(node.type)) {
       section.items = apiItems;
     }
 
