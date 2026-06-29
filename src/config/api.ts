@@ -1,8 +1,8 @@
 // src/config/api.ts
 
-export const API_BASE_URL = "https://echomaster.shop/api/api/v1/front";
+export const API_BASE_URL = "https://echomaster.shop/Ahmed/Backend/public/api/v1";
 export const AUTH_BASE_URL = "https://echomaster.shop/api/api/v1/app/auth";
-export const ADMIN_API_BASE_URL = "https://echomaster.shop/api/api/v1";
+export const ADMIN_API_BASE_URL = "https://echomaster.shop/Ahmed/Backend/public/api/v1";
 
 export const AUTH_ENDPOINTS = {
   register: "/register",
