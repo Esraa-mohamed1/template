@@ -17,6 +17,7 @@ interface EcommerceHeroBannerProps {
   showRating?: boolean;
   showCountdown?: boolean;
   countdownLabel?: string;
+  imageSize?: 'small' | 'medium' | 'large';
 }
 
 function CountdownTimer({ label }: { label: string }) {
@@ -51,8 +52,17 @@ export default function EcommerceHeroBanner({
   showBadge = true,
   showRating = true,
   showCountdown = true,
-  countdownLabel = 'Deal ends in:'
+  countdownLabel = 'Deal ends in:',
+  imageSize = 'medium'
 }: EcommerceHeroBannerProps) {
+
+  // Map image width and height classes
+  const sizeMap: Record<string, string> = {
+    small: 'max-w-[320px] aspect-[4/3] mx-auto',
+    medium: 'max-w-[480px] aspect-[4/3] mx-auto',
+    large: 'max-w-[640px] aspect-[4/3] mx-auto',
+  };
+  const imageSizeClass = sizeMap[imageSize] || 'max-w-[480px] aspect-[4/3] mx-auto';
 
   // ── FRAME: centered ──────────────────────────────────────────────────────────
   if (layoutFrame === 'centered') {
@@ -121,7 +131,7 @@ export default function EcommerceHeroBanner({
         <div className="max-w-6xl mx-auto flex items-center gap-12">
           {/* Image */}
           <div className="flex-1 relative">
-            <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]" style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}30)` }}>
+            <div className={`rounded-3xl overflow-hidden shadow-2xl ${imageSizeClass}`} style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}30)` }}>
               {productImage && <img src={productImage} alt="Hero" className="w-full h-full object-cover" />}
             </div>
             {showRating && (
@@ -180,7 +190,7 @@ export default function EcommerceHeroBanner({
         </div>
         {/* Image */}
         <div className="flex-1 relative">
-          <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]" style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}30)` }}>
+          <div className={`rounded-3xl overflow-hidden shadow-2xl ${imageSizeClass}`} style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}30)` }}>
             {productImage && <img src={productImage} alt="Hero" className="w-full h-full object-cover" />}
           </div>
           {showRating && (

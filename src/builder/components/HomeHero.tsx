@@ -12,6 +12,11 @@ interface HomeHeroProps {
   img1?: string;
   img2?: string;
   img3?: string;
+  textColor?: string;
+  accentColor?: string;
+  bgColor?: string;
+  imageSize?: 'small' | 'medium' | 'large';
+  align?: 'right' | 'center' | 'left';
   onCategoryClick?: (c: string) => void;
 }
 
@@ -26,40 +31,63 @@ export default function HomeHero({
   img1 = 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop',
   img2 = 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop',
   img3 = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
+  textColor = '#1e293b',
+  accentColor = '#f97316',
+  bgColor = '#ffffff',
+  imageSize = 'medium',
+  align = 'right',
   onCategoryClick
 }: HomeHeroProps) {
+
+  // Map alignment prop to CSS classes
+  const isCenter = align === 'center';
+  const isLeft = align === 'left';
+  
+  const textAlignmentClass = isCenter ? 'text-center' : isLeft ? 'text-left' : 'text-right';
+  const flexAlignmentClass = isCenter ? 'items-center justify-center' : isLeft ? 'items-start justify-start' : 'items-end justify-end';
+  const justifyClass = isCenter ? 'justify-center' : isLeft ? 'justify-start' : 'justify-end';
+
+  // Map gallery height to image size
+  const heightMap: Record<string, string> = {
+    small: 'h-[380px]',
+    medium: 'h-[480px]',
+    large: 'h-[580px]',
+  };
+  const galleryHeightClass = heightMap[imageSize] || 'h-[480px]';
+
   return (
-    <section id="hero-section" className="relative px-6 py-16 overflow-hidden bg-transparent">
+    <section id="hero-section" style={{ backgroundColor: bgColor }} className="relative px-6 py-16 overflow-hidden rounded-[inherit] transition-colors duration-300">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         <motion.div 
           id="hero-content"
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-left"
+          className={`flex flex-col ${isCenter ? 'items-center text-center' : isLeft ? 'items-start text-left' : 'items-start lg:items-start text-left'}`}
         >
-          <div className="mb-6 flex items-center gap-4">
+          <div className={`mb-6 flex ${isCenter ? 'flex-col items-center text-center' : 'items-center gap-4 text-left'}`}>
             {avatarUrl && (
               <div id="hero-avatar" className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0">
                 <img src={avatarUrl} alt="Avatar" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
               </div>
             )}
             {avatarText && (
-              <p className="text-sm text-gray-500 max-w-[280px] leading-relaxed text-left">
+              <p style={{ color: `${textColor}99` }} className="text-sm max-w-[280px] leading-relaxed font-medium">
                 {avatarText}
               </p>
             )}
           </div>
-          <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-[0.9] tracking-tighter text-left">
+          <h1 style={{ color: textColor }} className="text-6xl md:text-7xl font-bold mb-8 leading-[0.9] tracking-tighter">
             {titlePart1} <br />
-            {titlePart2 && <span className="text-orange-400">{titlePart2}</span>} {titlePart3}
+            {titlePart2 && <span style={{ color: accentColor }}>{titlePart2}</span>} {titlePart3}
           </h1>
           <div id="hero-ctas" className="flex items-center gap-4 justify-start">
             {buttonText && (
               <button 
                 id="cta-shop-now" 
                 onClick={() => onCategoryClick && onCategoryClick('All')}
-                className="px-8 py-3 bg-brand-blue text-white rounded-full font-medium hover:bg-blue-600 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                style={{ backgroundColor: accentColor }}
+                className="px-8 py-3 text-white rounded-full font-medium hover:opacity-90 transition-all shadow-lg shadow-orange-200 active:scale-95"
               >
                 {buttonText}
               </button>
@@ -67,7 +95,8 @@ export default function HomeHero({
             {secondButtonText && (
               <button 
                 id="cta-learn-more" 
-                className="px-8 py-3 border border-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-50 transition-all active:scale-95"
+                style={{ borderColor: `${textColor}22`, color: textColor }}
+                className="px-8 py-3 border bg-white/40 hover:bg-white/70 rounded-full font-medium transition-all active:scale-95"
               >
                 {secondButtonText}
               </button>
@@ -77,13 +106,13 @@ export default function HomeHero({
 
         <motion.div 
           id="hero-gallery"
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative grid grid-cols-4 gap-4 h-[600px]"
+          className={`relative grid grid-cols-4 gap-4 ${galleryHeightClass} w-full`}
         >
           {img1 && (
-            <div className="col-span-2 row-span-2 rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-900/10">
+            <div className="col-span-2 row-span-2 rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-900/5">
               <img src={img1} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" alt="Luxury Fashion" referrerPolicy="no-referrer" />
             </div>
           )}

@@ -457,6 +457,38 @@ export const FRAMES_BY_TYPE: Record<string, FrameOption[]> = {
   'ecommerce-newsletter': newsletterFrames,
   // Legacy section frames
   'home-hero': heroFrames,
+  'home-categories': categoryFrames,
+  'home-products': productGridFrames,
+  'home-testimonials': testimonialsFrames,
+  'home-instagram-grid': [
+    {
+      id: 'masonry-grid',
+      label: 'شبكة متداخلة (Masonry)',
+      description: 'شبكة صور انستغرام متداخلة وعصرية',
+      svg: (
+        <svg viewBox="0 0 80 50" className="w-full h-full">
+          <rect width="80" height="50" rx="4" fill="#f8fafc" />
+          <rect x="4" y="6" width="34" height="38" rx="2" fill="#cbd5e1" />
+          <rect x="42" y="6" width="34" height="17" rx="2" fill="#cbd5e1" opacity="0.8" />
+          <rect x="42" y="27" width="16" height="17" rx="2" fill="#cbd5e1" opacity="0.6" />
+          <rect x="60" y="27" width="16" height="17" rx="2" fill="#cbd5e1" opacity="0.6" />
+        </svg>
+      ),
+    },
+    {
+      id: '4-col-row',
+      label: '4 صور متساوية',
+      description: 'صف أفقي يحتوي على 4 صور متطابقة',
+      svg: (
+        <svg viewBox="0 0 80 50" className="w-full h-full">
+          <rect width="80" height="50" rx="4" fill="#f8fafc" />
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={i} x={4 + i * 19} y="15" width="15" height="20" rx="1.5" fill="#cbd5e1" />
+          ))}
+        </svg>
+      ),
+    }
+  ],
   'home-why-choose-us': [
     {
       id: '4-cards-row',

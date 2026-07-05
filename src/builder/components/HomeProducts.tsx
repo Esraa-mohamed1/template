@@ -6,11 +6,19 @@ import { Product } from "../../types";
 
 interface HomeProductsProps {
   showDivider?: boolean;
+  textColor?: string;
+  bgColor?: string;
+  accentColor?: string;
+  cardBg?: string;
   onProductClick?: (p: Product) => void;
 }
 
 export default function HomeProducts({
   showDivider = true,
+  textColor = "#1e293b",
+  bgColor = "#ffffff",
+  accentColor = "#f97316",
+  cardBg = "#ffffff",
   onProductClick
 }: HomeProductsProps) {
   const [sections, setSections] = useState<HomeSection[]>([]);
@@ -34,6 +42,10 @@ export default function HomeProducts({
         <React.Fragment key={section.id}>
           <SectionBlock
             section={section}
+            textColor={textColor}
+            bgColor={bgColor}
+            accentColor={accentColor}
+            cardBg={cardBg}
             onProductClick={(id) => onProductClick && onProductClick({ id: String(id) } as Product)}
           />
         </React.Fragment>

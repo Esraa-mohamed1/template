@@ -56,6 +56,7 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const pageId = searchParams.get('pageId') || '1';
+  const [selectedLibraryStyle, setSelectedLibraryStyle] = useState<'option1' | 'option2'>('option2');
   const { 
     currentTemplate, 
     loadTemplate, 
@@ -146,10 +147,59 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
     const config = COMPONENT_REGISTRY[type];
     if (!config) return;
 
+    let props = { ...config.defaultProps };
+
+    if (selectedLibraryStyle === 'option2') {
+      // Style Option 2 defaults: Warm, light, pretty alignments, clean, designed for shopping
+      props = {
+        ...props,
+        textColor: '#1e293b',          // Light theme main dark text
+        bgColor: '#FFF8F0',            // Creamy white background
+        accentColor: '#D4AF37',        // Premium gold for icons, links, CTAs
+        buttonColor: '#C0504D',        // Muted berry red for add-to-cart buttons
+        buttonTextColor: '#ffffff',
+        cardBg: '#ffffff',             // Clean white cards
+        align: 'center',               // Elegant center alignment
+        imageSize: 'medium',
+        sectionBgType: 'solid',
+        sectionBg: '#FFF8F0',          // Default background is light cream
+      };
+      
+      // Let's adjust component-specific presets for Option 2
+      if (type === 'home-hero' || type === 'ecommerce-hero') {
+        props.bgColor = '#FFF8F0';
+        props.textColor = '#1e293b';
+        props.accentColor = '#f97316';
+        props.align = 'center';
+      } else if (type === 'home-categories' || type === 'ecommerce-category-grid') {
+        props.bgColor = '#FFF8F0';      // Cream warm white background
+        props.cardBg = '#ffffff';       // Pure white cards
+        props.textColor = '#1e293b';
+        props.accentColor = '#C0504D'; // Berry red highlights
+        props.imageSize = 'medium';
+      } else if (type === 'home-products' || type === 'ecommerce-product-grid' || type === 'ecommerce-flash-sale') {
+        props.bgColor = '#ffffff';
+        props.cardBg = '#fafaf9';      // Soft stone background cards
+        props.textColor = '#1e293b';
+        props.accentColor = '#C0504D'; // Muted berry red buttons for sale
+      } else if (type === 'ecommerce-newsletter') {
+        props.bgColor = '#FFF8F0';      // Soft warm background
+        props.textColor = '#1e293b';    // Legible dark text
+        props.accentColor = '#C0504D'; // Muted berry red button
+      }
+    } else {
+      // Style Option 1 defaults: Classic / Original Style
+      props = {
+        ...props,
+        sectionBgType: 'solid',
+        sectionBg: props.bgColor || '#ffffff',
+      };
+    }
+
     const newNode = {
       id: `${type}-${Math.random().toString(36).substr(2, 9)}`,
       type,
-      props: { ...config.defaultProps },
+      props,
       children: type === 'tabs' ? [] : undefined
     };
 
@@ -387,6 +437,40 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
             </h2>
             <p className="text-[9px] font-bold text-slate-400 mt-1 leading-normal">
               انقر فوق أي مكون أدناه لإضافته فوراً إلى نهاية لوحة تحكم صفحتك.
+            </p>
+          </div>
+
+          {/* Style Option Switcher */}
+          <div className="px-5 py-3 border-b border-slate-800/80 bg-slate-900/30 flex flex-col gap-2">
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">نمط تصميم المكونات:</span>
+            <div className="flex bg-slate-950/60 rounded-xl p-0.5 border border-slate-800">
+              <button
+                type="button"
+                onClick={() => setSelectedLibraryStyle('option1')}
+                className={`flex-1 py-1.5 rounded-lg text-[9px] font-black transition-all ${
+                  selectedLibraryStyle === 'option1'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                كلاسيكي (Option 1) 🏛️
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedLibraryStyle('option2')}
+                className={`flex-1 py-1.5 rounded-lg text-[9px] font-black transition-all ${
+                  selectedLibraryStyle === 'option2'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                تسوق زاهي (Option 2) 🛍️
+              </button>
+            </div>
+            <p className="text-[8.5px] text-slate-400 font-semibold leading-normal">
+              {selectedLibraryStyle === 'option2' 
+                ? '💡 مظهر متجر عصري مشرق بألوان زاهية وخطوط متناسقة تزيد المبيعات (لا ألوان داكنة).'
+                : '💡 المظهر الأصلي المعتاد بالألوان الكلاسيكية والافتراضية.'}
             </p>
           </div>
           

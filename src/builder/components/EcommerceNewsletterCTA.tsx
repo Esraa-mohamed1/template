@@ -9,6 +9,7 @@ interface EcommerceNewsletterCTAProps {
   ctaText?: string;
   bgColor?: string;
   accentColor?: string;
+  textColor?: string;
   showIcon?: boolean;
   badgeText?: string;
 }
@@ -21,15 +22,24 @@ export default function EcommerceNewsletterCTA({
   ctaText = 'Subscribe',
   bgColor = '#0f172a',
   accentColor = '#f97316',
+  textColor = '#ffffff',
   showIcon = true,
   badgeText = '🎁 Get 15% off your first order',
 }: EcommerceNewsletterCTAProps) {
   const [email, setEmail] = useState('');
 
+  // Auto-detect dark/light theme based on hex brightness to set input themes
+  const cleanBg = bgColor.toLowerCase().trim();
+  const isLightBg = cleanBg === '#ffffff' || cleanBg === '#fff8f0' || cleanBg === '#fffbeb' || cleanBg === '#fff7ed' || cleanBg === '#f8fafc' || cleanBg === '#f1f5f9' || cleanBg === '#fafaf9';
+  
+  const inputBgClass = isLightBg 
+    ? 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
+    : 'bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500';
+
   // ── FRAME: split ──────────────────────────────────────────────────────────────
   if (layoutFrame === 'split') {
     return (
-      <section className="w-full py-12 px-6" style={{ backgroundColor: bgColor }}>
+      <section className="w-full py-12 px-6 transition-colors duration-300" style={{ backgroundColor: bgColor }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
           {/* Left */}
           <div className="flex-1">
@@ -38,13 +48,13 @@ export default function EcommerceNewsletterCTA({
                 <Bell size={22} style={{ color: accentColor }} />
               </div>
             )}
-            <h2 className="text-3xl font-black text-white leading-tight mb-3">{headline}</h2>
-            <p className="text-sm text-slate-400 leading-relaxed">{subtext}</p>
+            <h2 className="text-3xl font-black leading-tight mb-3" style={{ color: textColor }}>{headline}</h2>
+            <p className="text-sm leading-relaxed" style={{ color: isLightBg ? `${textColor}b3` : '#cbd5e1' }}>{subtext}</p>
           </div>
           {/* Right */}
           <div className="flex-1 w-full">
             {badgeText && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-black px-4 py-1.5 rounded-full mb-4" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
+              <span className="inline-flex items-center gap-1.5 text-xs font-black px-4 py-1.5 rounded-full mb-4 animate-pulse" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
                 {badgeText}
               </span>
             )}
@@ -54,13 +64,13 @@ export default function EcommerceNewsletterCTA({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={placeholder}
-                className="w-full px-5 py-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-orange-500 transition-colors"
+                className={`w-full px-5 py-3.5 rounded-2xl border text-sm font-medium focus:outline-none transition-colors ${inputBgClass}`}
               />
               <button className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-sm font-black transition-all hover:opacity-90 shadow-lg" style={{ backgroundColor: accentColor }}>
                 <Mail size={16} /> {ctaText}
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 mt-3">No spam, ever. Unsubscribe anytime.</p>
+            <p className="text-[10px] text-slate-400 mt-3">No spam, ever. Unsubscribe anytime.</p>
           </div>
         </div>
       </section>
@@ -70,9 +80,9 @@ export default function EcommerceNewsletterCTA({
   // ── FRAME: inline ─────────────────────────────────────────────────────────────
   if (layoutFrame === 'inline') {
     return (
-      <section className="w-full py-10 px-6" style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)` }}>
+      <section className="w-full py-10 px-6 transition-colors duration-300" style={{ background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}05)`, backgroundColor: bgColor }}>
         <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl p-8">
+          <div className="rounded-3xl border border-slate-100 shadow-xl p-8 bg-white" style={{ borderColor: isLightBg ? undefined : 'transparent' }}>
             <div className="flex flex-col md:flex-row items-center gap-6">
               {showIcon && (
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${accentColor}15` }}>
@@ -80,8 +90,8 @@ export default function EcommerceNewsletterCTA({
                 </div>
               )}
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-xl font-black text-slate-800">{headline}</h2>
-                <p className="text-sm text-slate-500 mt-1">{subtext}</p>
+                <h2 className="text-xl font-black text-slate-800" style={{ color: isLightBg ? textColor : undefined }}>{headline}</h2>
+                <p className="text-sm text-slate-500 mt-1" style={{ color: isLightBg ? `${textColor}99` : undefined }}>{subtext}</p>
               </div>
               <div className="flex gap-2 shrink-0 w-full md:w-auto">
                 <input
@@ -104,7 +114,7 @@ export default function EcommerceNewsletterCTA({
 
   // ── FRAME: centered (default) ─────────────────────────────────────────────────
   return (
-    <section className="w-full py-16 px-6 text-center relative overflow-hidden" style={{ backgroundColor: bgColor }}>
+    <section className="w-full py-16 px-6 text-center relative overflow-hidden transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-10" style={{ background: `radial-gradient(ellipse, ${accentColor}, transparent 70%)` }} />
@@ -116,25 +126,25 @@ export default function EcommerceNewsletterCTA({
           </div>
         )}
         {badgeText && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-black px-4 py-1.5 rounded-full mb-4" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black px-4 py-1.5 rounded-full mb-4 animate-bounce" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
             {badgeText}
           </span>
         )}
-        <h2 className="text-3xl font-black text-white leading-tight mb-3">{headline}</h2>
-        <p className="text-sm text-slate-400 leading-relaxed mb-8">{subtext}</p>
+        <h2 className="text-3xl font-black leading-tight mb-3" style={{ color: textColor }}>{headline}</h2>
+        <p className="text-sm leading-relaxed mb-8" style={{ color: isLightBg ? `${textColor}b3` : '#cbd5e1' }}>{subtext}</p>
         <div className="flex gap-2 max-w-md mx-auto">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 px-5 py-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm font-medium focus:outline-none focus:border-orange-500 transition-colors"
+            className={`flex-1 px-5 py-3.5 rounded-2xl border text-sm font-medium focus:outline-none transition-colors ${inputBgClass}`}
           />
           <button className="flex items-center gap-2 px-6 py-3.5 rounded-2xl text-white text-sm font-black transition-all hover:opacity-90 shadow-lg shrink-0" style={{ backgroundColor: accentColor }}>
             <Mail size={14} /> {ctaText}
           </button>
         </div>
-        <p className="text-[10px] text-slate-600 mt-4">No spam, ever. Unsubscribe anytime.</p>
+        <p className="text-[10px] text-slate-400 mt-4">No spam, ever. Unsubscribe anytime.</p>
       </div>
     </section>
   );

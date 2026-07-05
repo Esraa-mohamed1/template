@@ -10,6 +10,9 @@ interface EcommerceProductGridProps {
   showQuickView?: boolean;
   showWishlist?: boolean;
   showRating?: boolean;
+  bgColor?: string;
+  textColor?: string;
+  imageSize?: 'small' | 'medium' | 'large';
 }
 
 const DEMO_PRODUCTS = [
@@ -44,6 +47,8 @@ function ProductCard({
   showQuickView,
   showWishlist,
   showRating,
+  textColor,
+  imageSize,
 }: {
   product: typeof DEMO_PRODUCTS[0];
   accentColor: string;
@@ -51,10 +56,20 @@ function ProductCard({
   showQuickView: boolean;
   showWishlist: boolean;
   showRating: boolean;
+  textColor: string;
+  imageSize: 'small' | 'medium' | 'large';
 }) {
   const discount = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : null;
+
+  // Map image size height classes
+  const sizeMap: Record<string, string> = {
+    small: 'aspect-[4/3] max-h-36',
+    medium: 'aspect-square',
+    large: 'aspect-[3/4] max-h-60',
+  };
+  const imageHeightClass = sizeMap[imageSize] || 'aspect-square';
 
   return (
     <div
@@ -62,7 +77,7 @@ function ProductCard({
       style={{ backgroundColor: cardBg }}
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-slate-50">
+      <div className={`relative ${imageHeightClass} overflow-hidden bg-slate-50`}>
         <img
           src={product.img}
           alt={product.name}
@@ -99,7 +114,7 @@ function ProductCard({
 
       {/* Info */}
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="text-sm font-bold text-slate-800 mb-1 line-clamp-2 leading-tight">{product.name}</h3>
+        <h3 style={{ color: textColor }} className="text-sm font-bold mb-1 line-clamp-2 leading-tight">{product.name}</h3>
         {showRating && (
           <div className="flex items-center gap-1.5 mb-2">
             <StarRating rating={product.rating} />
@@ -108,7 +123,7 @@ function ProductCard({
         )}
         <div className="mt-auto">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg font-black text-slate-900">${product.price.toFixed(2)}</span>
+            <span style={{ color: accentColor }} className="text-lg font-black">${product.price.toFixed(2)}</span>
             {product.oldPrice && (
               <span className="text-sm text-slate-400 line-through">${product.oldPrice.toFixed(2)}</span>
             )}
@@ -130,11 +145,13 @@ function ListProductCard({
   accentColor,
   cardBg,
   showRating,
+  textColor,
 }: {
   product: typeof DEMO_PRODUCTS[0];
   accentColor: string;
   cardBg: string;
   showRating: boolean;
+  textColor: string;
 }) {
   return (
     <div
@@ -145,7 +162,7 @@ function ListProductCard({
         <img src={product.img} alt={product.name} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-bold text-slate-800 mb-1 truncate">{product.name}</h3>
+        <h3 style={{ color: textColor }} className="text-sm font-bold mb-1 truncate">{product.name}</h3>
         {showRating && (
           <div className="flex items-center gap-1 mb-1">
             <StarRating rating={product.rating} />
@@ -153,7 +170,7 @@ function ListProductCard({
           </div>
         )}
         <div className="flex items-center gap-2">
-          <span className="text-base font-black text-slate-900">${product.price}</span>
+          <span style={{ color: accentColor }} className="text-base font-black">${product.price}</span>
           {product.oldPrice && <span className="text-xs text-slate-400 line-through">${product.oldPrice}</span>}
         </div>
       </div>
@@ -178,6 +195,9 @@ export default function EcommerceProductGrid({
   showQuickView = true,
   showWishlist = true,
   showRating = true,
+  bgColor = '#ffffff',
+  textColor = '#1e293b',
+  imageSize = 'medium',
 }: EcommerceProductGridProps) {
 
   const colClass = layoutFrame === '4-col'
@@ -190,14 +210,14 @@ export default function EcommerceProductGrid({
   const products = DEMO_PRODUCTS.slice(0, visibleCount);
 
   return (
-    <section className="w-full py-10 px-6 bg-white">
+    <section style={{ backgroundColor: bgColor }} className="w-full py-10 px-6 transition-colors duration-300">
       {/* ⚠️ Backend Data Note */}
-      <div className="mb-5 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+      <div className="mb-6 flex items-start gap-3 bg-blue-50/80 border border-blue-100/50 rounded-2xl p-4 shadow-sm backdrop-blur-sm max-w-6xl mx-auto text-right" dir="rtl">
         <span className="text-lg">🔗</span>
         <div>
-          <p className="text-xs font-black text-amber-800">هذا القسم يعرض بيانات المنتجات من الخادم (Backend)</p>
-          <p className="text-[11px] text-amber-600 mt-0.5">لتعديل المنتجات أو إضافة عروض جديدة، يُرجى الذهاب إلى صفحة إدارة المنتجات.</p>
-          <a href="/admin/products" className="inline-flex items-center gap-1 text-[11px] font-black text-orange-600 hover:text-orange-700 mt-1">
+          <p className="text-xs font-black text-blue-900 leading-none">هذا القسم مرتبط ببيانات المنتجات من لوحة التحكم</p>
+          <p className="text-[10px] text-blue-600/80 font-bold mt-1">تعديل أو إضافة العروض والمنتجات يتم مباشرة عبر قائمة المنتجات في لوحة الإدارة.</p>
+          <a href="/admin/products" className="inline-flex items-center gap-1 text-[10px] font-black text-blue-700 hover:underline mt-1.5 transition-all">
             <ExternalLink size={10} /> فتح صفحة المنتجات
           </a>
         </div>
@@ -207,8 +227,8 @@ export default function EcommerceProductGrid({
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-black text-slate-800">{sectionTitle}</h2>
-            {sectionSubtitle && <p className="text-sm text-slate-500 mt-1">{sectionSubtitle}</p>}
+            <h2 style={{ color: textColor }} className="text-2xl font-black">{sectionTitle}</h2>
+            {sectionSubtitle && <p style={{ color: `${textColor}cc` }} className="text-sm mt-1">{sectionSubtitle}</p>}
           </div>
           <a href="#" className="text-xs font-black flex items-center gap-1 hover:underline" style={{ color: accentColor }}>
             View All <ExternalLink size={11} />
@@ -219,7 +239,7 @@ export default function EcommerceProductGrid({
         {layoutFrame === 'list' ? (
           <div className="space-y-3">
             {products.map((p) => (
-              <ListProductCard key={p.id} product={p} accentColor={accentColor} cardBg={cardBg} showRating={showRating} />
+              <ListProductCard key={p.id} product={p} accentColor={accentColor} cardBg={cardBg} showRating={showRating} textColor={textColor} />
             ))}
           </div>
         ) : (
@@ -233,6 +253,8 @@ export default function EcommerceProductGrid({
                 showQuickView={showQuickView}
                 showWishlist={showWishlist}
                 showRating={showRating}
+                textColor={textColor}
+                imageSize={imageSize}
               />
             ))}
           </div>

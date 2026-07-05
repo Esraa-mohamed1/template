@@ -9,6 +9,8 @@ interface EcommerceFlashSaleProps {
   accentColor?: string;
   showTimer?: boolean;
   timerLabel?: string;
+  textColor?: string;
+  imageSize?: 'small' | 'medium' | 'large';
 }
 
 const FLASH_PRODUCTS = [
@@ -28,16 +30,26 @@ function CountdownBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FlashCard({ product, accentColor }: { product: typeof FLASH_PRODUCTS[0]; accentColor: string }) {
+function FlashCard({ 
+  product, 
+  accentColor, 
+  textColor, 
+  currentImgHeight 
+}: { 
+  product: typeof FLASH_PRODUCTS[0]; 
+  accentColor: string; 
+  textColor: string; 
+  currentImgHeight: string;
+}) {
   const discount = Math.round((1 - product.price / product.oldPrice) * 100);
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-w-[180px] max-w-[200px] flex-shrink-0 flex flex-col">
-      <div className="relative aspect-square bg-slate-50">
+      <div className={`relative ${currentImgHeight} w-full bg-slate-50`}>
         <img src={product.img} alt={product.name} className="w-full h-full object-cover" />
         <span className="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg">-{discount}%</span>
       </div>
       <div className="p-3 flex flex-col flex-1">
-        <p className="text-xs font-bold text-slate-800 line-clamp-2 mb-1">{product.name}</p>
+        <p className="text-xs font-bold line-clamp-2 mb-1" style={{ color: textColor }}>{product.name}</p>
         <div className="flex items-center gap-1 mb-1">
           <Star size={10} className="fill-amber-400 text-amber-400" />
           <span className="text-[10px] text-slate-500">{product.rating} ({product.reviews.toLocaleString()})</span>
@@ -73,19 +85,29 @@ export default function EcommerceFlashSale({
   accentColor = '#f97316',
   showTimer = true,
   timerLabel = 'Ends in:',
+  textColor = '#ffffff',
+  imageSize = 'medium'
 }: EcommerceFlashSaleProps) {
+
+  // Map image height
+  const imgHeightMap: Record<string, string> = {
+    small: 'h-24',
+    medium: 'h-36',
+    large: 'h-48',
+  };
+  const currentImgHeight = imgHeightMap[imageSize] || 'h-36';
 
   // ── FRAME: minimal ────────────────────────────────────────────────────────────
   if (layoutFrame === 'minimal') {
     return (
-      <section className="w-full py-10 px-6 bg-white">
+      <section style={{ backgroundColor: bgColor }} className="w-full py-10 px-6 transition-colors duration-300">
         {/* Backend note */}
-        <div className="mb-5 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <div className="mb-6 flex items-start gap-3 bg-blue-50/80 border border-blue-100/50 rounded-2xl p-4 shadow-sm backdrop-blur-sm max-w-6xl mx-auto text-right" dir="rtl">
           <span className="text-lg">🔗</span>
           <div>
-            <p className="text-xs font-black text-amber-800">هذا القسم يعرض بيانات العروض من الخادم (Backend)</p>
-            <p className="text-[11px] text-amber-600 mt-0.5">لتعديل عروض Flash Sale اذهب إلى صفحة إدارة العروض.</p>
-            <a href="/admin/offers" className="inline-flex items-center gap-1 text-[11px] font-black text-orange-600 mt-1">
+            <p className="text-xs font-black text-blue-900 leading-none">هذا القسم مرتبط ببيانات العروض من لوحة التحكم</p>
+            <p className="text-[10px] text-blue-600/80 font-bold mt-1 font-sans">لتحديد المنتجات المشمولة في العرض وفترته الزمنية، اذهب إلى صفحة العروض.</p>
+            <a href="/admin/offers" className="inline-flex items-center gap-1 text-[10px] font-black text-blue-700 hover:underline mt-1.5 transition-all">
               <ExternalLink size={10} /> فتح صفحة العروض
             </a>
           </div>
@@ -94,7 +116,7 @@ export default function EcommerceFlashSale({
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <Zap size={20} className="text-orange-500" />
-              <h2 className="text-xl font-black text-slate-800">{sectionTitle}</h2>
+              <h2 className="text-xl font-black" style={{ color: textColor }}>{sectionTitle}</h2>
               <span className="text-xs bg-rose-100 text-rose-600 font-black px-3 py-1 rounded-full">{badgeText}</span>
             </div>
             {showTimer && (
@@ -105,7 +127,7 @@ export default function EcommerceFlashSale({
             )}
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} />)}
+            {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} textColor="#1e293b" currentImgHeight={currentImgHeight} />)}
           </div>
         </div>
       </section>
@@ -115,13 +137,14 @@ export default function EcommerceFlashSale({
   // ── FRAME: light-banner ───────────────────────────────────────────────────────
   if (layoutFrame === 'light-banner') {
     return (
-      <section className="w-full py-10 px-6" style={{ background: `linear-gradient(135deg, ${accentColor}10, ${accentColor}05)` }}>
+      <section className="w-full py-10 px-6 transition-colors duration-300" style={{ background: `linear-gradient(135deg, ${accentColor}10, ${accentColor}05)`, backgroundColor: bgColor }}>
         {/* Backend note */}
-        <div className="mb-5 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <div className="mb-6 flex items-start gap-3 bg-blue-50/80 border border-blue-100/50 rounded-2xl p-4 shadow-sm backdrop-blur-sm max-w-6xl mx-auto text-right" dir="rtl">
           <span className="text-lg">🔗</span>
           <div>
-            <p className="text-xs font-black text-amber-800">هذا القسم يعرض بيانات العروض من الخادم (Backend)</p>
-            <a href="/admin/offers" className="inline-flex items-center gap-1 text-[11px] font-black text-orange-600 mt-0.5">
+            <p className="text-xs font-black text-blue-900 leading-none">هذا القسم مرتبط ببيانات العروض من لوحة التحكم</p>
+            <p className="text-[10px] text-blue-600/80 font-bold mt-1">لتحديد المنتجات المشمولة في العرض وفترته الزمنية، اذهب إلى صفحة العروض.</p>
+            <a href="/admin/offers" className="inline-flex items-center gap-1 text-[10px] font-black text-blue-700 hover:underline mt-1.5 transition-all">
               <ExternalLink size={10} /> فتح صفحة العروض
             </a>
           </div>
@@ -131,7 +154,7 @@ export default function EcommerceFlashSale({
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Zap size={18} style={{ color: accentColor }} />
-                <span className="text-2xl font-black text-slate-800">{sectionTitle}</span>
+                <span className="text-2xl font-black" style={{ color: textColor }}>{sectionTitle}</span>
               </div>
               <p className="text-sm text-slate-500">Grab these incredible deals before they're gone!</p>
             </div>
@@ -149,7 +172,7 @@ export default function EcommerceFlashSale({
             )}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} />)}
+            {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} textColor="#1e293b" currentImgHeight={currentImgHeight} />)}
           </div>
         </div>
       </section>
@@ -158,13 +181,14 @@ export default function EcommerceFlashSale({
 
   // ── FRAME: dark-scroll (default) ──────────────────────────────────────────────
   return (
-    <section className="w-full py-10 px-6" style={{ backgroundColor: bgColor }}>
+    <section className="w-full py-10 px-6 transition-colors duration-300" style={{ backgroundColor: bgColor }}>
       {/* Backend note */}
-      <div className="mb-5 flex items-start gap-3 bg-amber-900/30 border border-amber-600/40 rounded-2xl p-4">
+      <div className="mb-6 flex items-start gap-3 bg-blue-50/80 border border-blue-100/50 rounded-2xl p-4 shadow-sm backdrop-blur-sm max-w-6xl mx-auto text-right" dir="rtl">
         <span className="text-lg">🔗</span>
         <div>
-          <p className="text-xs font-black text-amber-300">هذا القسم يعرض بيانات العروض من الخادم (Backend)</p>
-          <a href="/admin/offers" className="inline-flex items-center gap-1 text-[11px] font-black text-amber-400 mt-0.5">
+          <p className="text-xs font-black text-blue-900 leading-none">هذا القسم مرتبط ببيانات العروض من لوحة التحكم</p>
+          <p className="text-[10px] text-blue-600/80 font-bold mt-1">لتحديد المنتجات المشمولة في العرض وفترته الزمنية، اذهب إلى صفحة العروض.</p>
+          <a href="/admin/offers" className="inline-flex items-center gap-1 text-[10px] font-black text-blue-700 hover:underline mt-1.5 transition-all">
             <ExternalLink size={10} /> فتح صفحة العروض
           </a>
         </div>
@@ -177,7 +201,7 @@ export default function EcommerceFlashSale({
               <Zap size={20} style={{ color: accentColor }} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white">{sectionTitle}</h2>
+              <h2 className="text-2xl font-black" style={{ color: textColor }}>{sectionTitle}</h2>
               <span className="text-xs font-bold text-slate-400">{badgeText} <TrendingDown size={11} className="inline text-green-400" /></span>
             </div>
           </div>
@@ -198,7 +222,7 @@ export default function EcommerceFlashSale({
         </div>
         {/* Horizontal scroll products */}
         <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1">
-          {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} />)}
+          {FLASH_PRODUCTS.map(p => <FlashCard key={p.id} product={p} accentColor={accentColor} textColor="#1e293b" currentImgHeight={currentImgHeight} />)}
         </div>
       </div>
     </section>

@@ -31,6 +31,7 @@ export interface ComponentFieldConfig {
   defaultValue: any;
   options?: { label: string; value: string }[]; // For select dropdowns
   responsive?: boolean; // Can be defined per device mode
+  note?: string; // Informative helper description for simple users
 }
 
 export interface ComponentRegistryEntry {

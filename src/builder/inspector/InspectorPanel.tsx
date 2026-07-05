@@ -127,11 +127,21 @@ export default function InspectorPanel() {
 
   // Group fields into Content vs styling parameters
   const contentFields = registryConfig.fields.filter(
-    (f) => !['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(f.type) && f.name !== 'align'
+    (f) => !['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(f.type) && f.name !== 'align' && f.name !== 'imageSize'
   );
   
   const stylingFields = registryConfig.fields.filter(
-    (f) => ['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(f.type) || f.name === 'align'
+    (f) => ['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(f.type) || f.name === 'align' || f.name === 'imageSize'
+  );
+
+  // Single unified list for Simple Mode: only texts, color pickers, align, and imageSize
+  const simpleFields = registryConfig.fields.filter(
+    (f) => 
+      f.type === 'text' || 
+      f.type === 'textarea' || 
+      ['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(f.type) || 
+      f.name === 'imageSize' || 
+      f.name === 'align'
   );
 
   return (
@@ -180,39 +190,38 @@ export default function InspectorPanel() {
         </div>
       </div>
 
-      {/* Selector Tabs */}
-      <div className="flex border-b border-slate-100">
-        <button
-          onClick={() => setActiveTab('content')}
-          className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
-            activeTab === 'content' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5" />
-          المحتوى
-        </button>
-        <button
-          onClick={() => setActiveTab('style')}
-          className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
-            activeTab === 'style' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
-        >
-          <Paintbrush className="w-3.5 h-3.5" />
-          النمط
-        </button>
-        {/* Frames tab — visible for sections that have frame options */}
-        {FRAMES_BY_TYPE[selectedNode.type] && FRAMES_BY_TYPE[selectedNode.type].length > 0 && (
+      {/* Selector Tabs — Only shown in Advanced Mode */}
+      {!isSimpleMode && (
+        <div className="flex border-b border-slate-100">
           <button
-            onClick={() => setActiveTab('frames')}
+            onClick={() => setActiveTab('content')}
             className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
-              activeTab === 'frames' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
+              activeTab === 'content' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
             }`}
           >
-            <LayoutTemplate className="w-3.5 h-3.5" />
-            الإطارات
+            <FileText className="w-3.5 h-3.5" />
+            المحتوى
           </button>
-        )}
-        {!isSimpleMode && (
+          <button
+            onClick={() => setActiveTab('style')}
+            className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
+              activeTab === 'style' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <Paintbrush className="w-3.5 h-3.5" />
+            النمط
+          </button>
+          {FRAMES_BY_TYPE[selectedNode.type] && FRAMES_BY_TYPE[selectedNode.type].length > 0 && (
+            <button
+              onClick={() => setActiveTab('frames')}
+              className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
+                activeTab === 'frames' ? 'border-blue-500 text-blue-600 bg-blue-50/10' : 'border-transparent text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <LayoutTemplate className="w-3.5 h-3.5" />
+              الإطارات
+            </button>
+          )}
           <button
             onClick={() => setActiveTab('spacing')}
             className={`flex-1 py-3 text-[11px] font-black border-b-2 flex items-center justify-center gap-1.5 ${
@@ -222,13 +231,13 @@ export default function InspectorPanel() {
             <Settings className="w-3.5 h-3.5" />
             الهوامش
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Editor Content Area */}
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
         
-        {activeTab === 'content' && (
+        {isSimpleMode ? (
           <div className="space-y-5">
             {/* Backend data note — shown at the top for API-driven sections */}
             {BACKEND_SECTIONS[selectedNode.type] && (
@@ -239,13 +248,75 @@ export default function InspectorPanel() {
               />
             )}
 
-            {contentFields.map((field) => (
+            {simpleFields.map((field) => (
               <div key={field.name} className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 pr-1 block">
                   {field.label}
                 </label>
 
-                {field.type === 'text' && (
+                {field.name === 'align' ? (
+                  <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1 items-center">
+                    <button
+                      type="button"
+                      onClick={() => handlePropChange('align', 'right')}
+                      className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                        props.align === 'right' || !props.align ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      <AlignRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePropChange('align', 'center')}
+                      className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                        props.align === 'center' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      <AlignCenter className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePropChange('align', 'left')}
+                      className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                        props.align === 'left' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      <AlignLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : field.name === 'imageSize' ? (
+                  <div className="flex bg-slate-100/80 border border-slate-200/50 rounded-2xl p-1 items-center relative select-none">
+                    {field.options?.map((opt) => {
+                      const isSelected = (props[field.name] ?? field.defaultValue) === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => handlePropChange(field.name, opt.value)}
+                          className={`flex-1 py-2 rounded-xl text-xs font-black text-center transition-all duration-200 cursor-pointer ${
+                            isSelected 
+                              ? 'bg-white text-blue-600 shadow-sm border border-slate-200/30' 
+                              : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : ['color', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'titleColor', 'subtitleColor', 'headerBg', 'activeTabColor', 'accentColor', 'theme'].includes(field.type) ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="color" 
+                        value={props[field.name] ?? field.defaultValue} 
+                        onChange={(e) => handlePropChange(field.name, e.target.value)}
+                        className="w-10 h-10 p-0 rounded-xl border border-slate-200 cursor-pointer overflow-hidden outline-none bg-transparent"
+                      />
+                      <span className="text-[10px] font-bold text-slate-500">اضغط لاختيار لون {field.label}</span>
+                    </div>
+                  </div>
+                ) : field.type === 'text' ? (
                   (field.name.toLowerCase().includes('image') || field.name.toLowerCase().includes('img') || field.name.toLowerCase().includes('logo')) ? (
                     <ImageUploader
                       value={props[field.name] ?? ''}
@@ -260,270 +331,330 @@ export default function InspectorPanel() {
                       className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all"
                     />
                   )
-                )}
-
-                {field.type === 'textarea' && (
+                ) : field.type === 'textarea' ? (
                   <textarea 
                     rows={3}
                     value={props[field.name] ?? ''} 
                     onChange={(e) => handlePropChange(field.name, e.target.value)}
                     className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all resize-none"
                   />
-                )}
+                ) : null}
 
-                {field.type === 'number' && (
-                  <input 
-                    type="number" 
-                    value={props[field.name] ?? field.defaultValue} 
-                    onChange={(e) => handlePropChange(field.name, Number(e.target.value))}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all"
+                {field.note && (
+                  <p className="text-[10px] text-slate-500 font-semibold bg-blue-50/20 text-blue-700/80 px-2.5 py-1.5 rounded-lg border border-blue-100/30 mt-1 leading-normal">
+                    {field.note}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            {activeTab === 'content' && (
+              <div className="space-y-5">
+                {/* Backend data note — shown at the top for API-driven sections */}
+                {BACKEND_SECTIONS[selectedNode.type] && (
+                  <BackendDataNote
+                    pageName={BACKEND_SECTIONS[selectedNode.type].pageName}
+                    pageLink={BACKEND_SECTIONS[selectedNode.type].pageLink}
+                    description={BACKEND_SECTIONS[selectedNode.type].description}
                   />
                 )}
 
-                {field.type === 'boolean' && (
-                  <label className="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-100 rounded-2xl cursor-pointer hover:bg-slate-100/40 select-none">
-                    <input 
-                      type="checkbox" 
-                      checked={props[field.name] ?? field.defaultValue} 
-                      onChange={(e) => handlePropChange(field.name, e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-xs font-bold text-slate-600">تفعيل هذا الخيار</span>
-                  </label>
-                )}
+                {contentFields.map((field) => (
+                  <div key={field.name} className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 pr-1 block">
+                      {field.label}
+                    </label>
 
-                {field.type === 'select' && (
-                  <div className="relative">
-                    <select
-                      value={props[field.name] ?? field.defaultValue}
-                      onChange={(e) => handlePropChange(field.name, e.target.value)}
-                      className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
-                    >
-                      {field.options?.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* Custom List Editors */}
-            {selectedNode.type === 'kpi-cards' && (
-              <KpiCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-                showIconDropdown={showIconDropdown}
-                setShowIconDropdown={setShowIconDropdown}
-                iconSearch={iconSearch}
-                setIconSearch={setIconSearch}
-              />
-            )}
-
-            {selectedNode.type === 'course-cards' && (
-              <CourseCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'student-feed' && (
-              <StudentFeedEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'tables' && (
-              <TableBlockEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'metrics' && (
-              <MetricsCardsEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-                showIconDropdown={showIconDropdown}
-                setShowIconDropdown={setShowIconDropdown}
-                iconSearch={iconSearch}
-                setIconSearch={setIconSearch}
-              />
-            )}
-
-            {selectedNode.type === 'tabs' && (
-              <TabsBlockEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-
-            {selectedNode.type === 'hero-slider' && (
-              <HeroSliderEditor 
-                props={props} 
-                handlePropChange={handlePropChange}
-              />
-            )}
-          </div>
-        )}
-
-        {activeTab === 'style' && (
-          <div className="space-y-5">
-            {stylingFields.map((field) => (
-              <div key={field.name} className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 pr-1 block">
-                  {field.label}
-                </label>
-
-                {field.type === 'color' && (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="color" 
-                        value={props[field.name] ?? field.defaultValue} 
-                        onChange={(e) => handlePropChange(field.name, e.target.value)}
-                        className="w-10 h-10 p-0 rounded-xl border border-slate-200 cursor-pointer overflow-hidden outline-none bg-transparent"
-                      />
-                      
-                      {!isSimpleMode ? (
-                        <input 
-                          type="text" 
-                          value={props[field.name] ?? field.defaultValue} 
-                          onChange={(e) => handlePropChange(field.name, e.target.value)}
-                          className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-mono font-bold text-slate-600 outline-none text-left"
-                          dir="ltr"
+                    {field.type === 'text' && (
+                      (field.name.toLowerCase().includes('image') || field.name.toLowerCase().includes('img') || field.name.toLowerCase().includes('logo')) ? (
+                        <ImageUploader
+                          value={props[field.name] ?? ''}
+                          onChange={(val) => handlePropChange(field.name, val)}
+                          label={field.label}
                         />
                       ) : (
-                        <span className="text-[10px] font-bold text-slate-500">اضغط لاختيار لون {field.label}</span>
-                      )}
+                        <input 
+                          type="text" 
+                          value={props[field.name] ?? ''} 
+                          onChange={(e) => handlePropChange(field.name, e.target.value)}
+                          className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all"
+                        />
+                      )
+                    )}
+
+                    {field.type === 'textarea' && (
+                      <textarea 
+                        rows={3}
+                        value={props[field.name] ?? ''} 
+                        onChange={(e) => handlePropChange(field.name, e.target.value)}
+                        className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all resize-none"
+                      />
+                    )}
+
+                    {field.type === 'number' && (
+                      <input 
+                        type="number" 
+                        value={props[field.name] ?? field.defaultValue} 
+                        onChange={(e) => handlePropChange(field.name, Number(e.target.value))}
+                        className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all"
+                      />
+                    )}
+
+                    {field.type === 'boolean' && (
+                      <label className="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-100 rounded-2xl cursor-pointer hover:bg-slate-100/40 select-none">
+                        <input 
+                          type="checkbox" 
+                          checked={props[field.name] ?? field.defaultValue} 
+                          onChange={(e) => handlePropChange(field.name, e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-xs font-bold text-slate-600">تفعيل هذا الخيار</span>
+                      </label>
+                    )}
+
+                    {field.type === 'select' && (
+                      <div className="relative">
+                        <select
+                          value={props[field.name] ?? field.defaultValue}
+                          onChange={(e) => handlePropChange(field.name, e.target.value)}
+                          className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
+                        >
+                          {field.options?.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    )}
+
+                    {field.note && (
+                      <p className="text-[10px] text-slate-500 font-semibold bg-blue-50/20 text-blue-700/80 px-2.5 py-1.5 rounded-lg border border-blue-100/30 mt-1 leading-normal">
+                        {field.note}
+                      </p>
+                    )}
+                  </div>
+                ))}
+
+                {/* Custom List Editors */}
+                {selectedNode.type === 'kpi-cards' && (
+                  <KpiCardsEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                    showIconDropdown={showIconDropdown}
+                    setShowIconDropdown={setShowIconDropdown}
+                    iconSearch={iconSearch}
+                    setIconSearch={setIconSearch}
+                  />
+                )}
+
+                {selectedNode.type === 'course-cards' && (
+                  <CourseCardsEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                  />
+                )}
+
+                {selectedNode.type === 'student-feed' && (
+                  <StudentFeedEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                  />
+                )}
+
+                {selectedNode.type === 'tables' && (
+                  <TableBlockEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                  />
+                )}
+
+                {selectedNode.type === 'metrics' && (
+                  <MetricsCardsEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                    showIconDropdown={showIconDropdown}
+                    setShowIconDropdown={setShowIconDropdown}
+                    iconSearch={iconSearch}
+                    setIconSearch={setIconSearch}
+                  />
+                )}
+
+                {selectedNode.type === 'tabs' && (
+                  <TabsBlockEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                  />
+                )}
+
+                {selectedNode.type === 'hero-slider' && (
+                  <HeroSliderEditor 
+                    props={props} 
+                    handlePropChange={handlePropChange}
+                  />
+                )}
+              </div>
+            )}
+
+            {activeTab === 'style' && (
+              <div className="space-y-5">
+                {stylingFields.map((field) => (
+                  <div key={field.name} className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 pr-1 block">
+                      {field.label}
+                    </label>
+
+                    {field.type === 'color' && (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="color" 
+                            value={props[field.name] ?? field.defaultValue} 
+                            onChange={(e) => handlePropChange(field.name, e.target.value)}
+                            className="w-10 h-10 p-0 rounded-xl border border-slate-200 cursor-pointer overflow-hidden outline-none bg-transparent"
+                          />
+                          <input 
+                            type="text" 
+                            value={props[field.name] ?? field.defaultValue} 
+                            onChange={(e) => handlePropChange(field.name, e.target.value)}
+                            className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-mono font-bold text-slate-600 outline-none text-left"
+                            dir="ltr"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {field.type === 'select' && (
+                      <div className="relative">
+                        <select
+                          value={props[field.name] ?? field.defaultValue}
+                          onChange={(e) => handlePropChange(field.name, e.target.value)}
+                          className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
+                        >
+                          {field.options?.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    )}
+
+                    {field.note && (
+                      <p className="text-[10px] text-slate-500 font-semibold bg-blue-50/20 text-blue-700/80 px-2.5 py-1.5 rounded-lg border border-blue-100/30 mt-1 leading-normal">
+                        {field.note}
+                      </p>
+                    )}
+                  </div>
+                ))}
+
+                {/* Align text blocks */}
+                {registryConfig.fields.some(f => f.name === 'align') && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 pr-1 block">محاذاة النص والكتلة</label>
+                    <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1 items-center">
+                      <button
+                        type="button"
+                        onClick={() => handlePropChange('align', 'right')}
+                        className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                          props.align === 'right' || !props.align ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                      >
+                        <AlignRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePropChange('align', 'center')}
+                        className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                          props.align === 'center' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                      >
+                        <AlignCenter className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePropChange('align', 'left')}
+                        className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
+                          props.align === 'left' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                      >
+                        <AlignLeft className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 block mt-1 pr-1 leading-normal">
+                      💡 اختر اتجاه محاذاة نصوص ومحتويات هذا القسم (ليمين أو لوسط أو ليسار الصفحة).
+                    </span>
+                  </div>
+                )}
+
+                {/* Elementor-style Line Typography Accordion */}
+                {EDITABLE_LINES[selectedNode.type] && (
+                  <TypographyCustomizer 
+                    selectedNodeType={selectedNode.type}
+                    props={props}
+                    handlePropChange={handlePropChange}
+                    expandedLine={expandedLine}
+                    setExpandedLine={setExpandedLine}
+                  />
+                )}
+
+                {/* Section Background & Decorative Shapes */}
+                <SectionBackgroundControls 
+                  props={props}
+                  handlePropChange={handlePropChange}
+                  isSimpleMode={false}
+                />
+              </div>
+            )}
+
+            {/* ─── Frames Tab ─────────────────────────────────────────────── */}
+            {activeTab === 'frames' && (
+              <div className="space-y-4">
+                <FramesPicker
+                  nodeType={selectedNode.type}
+                  currentFrame={props.layoutFrame || ''}
+                  onFrameChange={(frameId) => handlePropChange('layoutFrame', frameId)}
+                />
+              </div>
+            )}
+
+            {activeTab === 'spacing' && (
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <span className="text-[10px] font-black text-slate-400 block">الهامش الداخلي (Padding)</span>
+                  
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-500 px-1">
+                      <span>التباعد العمودي</span>
+                      <span>{props.paddingTop === 'py-24' ? 'موسع (96px)' : props.paddingTop === 'py-16' ? 'افتراضي (64px)' : 'مضغوط (32px)'}</span>
+                    </div>
+                    <div className="relative">
+                      <select
+                        value={props.paddingTop ?? 'py-16'}
+                        onChange={(e) => {
+                          handlePropChange('paddingTop', e.target.value);
+                          handlePropChange('paddingBottom', e.target.value);
+                        }}
+                        className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 outline-none appearance-none"
+                      >
+                        <option value="py-8">مضغوط (py-8)</option>
+                        <option value="py-16">افتراضي (py-16)</option>
+                        <option value="py-24">موسع (py-24)</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
-                )}
-
-                {field.type === 'select' && (
-                  <div className="relative">
-                    <select
-                      value={props[field.name] ?? field.defaultValue}
-                      onChange={(e) => handlePropChange(field.name, e.target.value)}
-                      className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
-                    >
-                      {field.options?.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                )}
-              </div>
-            ))}
-
-             {/* Align text blocks */}
-            {registryConfig.fields.some(f => f.name === 'align') && (
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 pr-1 block">محاذاة النص والكتلة</label>
-                <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1 items-center">
-                  <button
-                    type="button"
-                    onClick={() => handlePropChange('align', 'right')}
-                    className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
-                      props.align === 'right' || !props.align ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <AlignRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePropChange('align', 'center')}
-                    className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
-                      props.align === 'center' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <AlignCenter className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePropChange('align', 'left')}
-                    className={`flex-1 py-2 rounded-xl flex items-center justify-center transition-all ${
-                      props.align === 'left' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <AlignLeft className="w-4 h-4" />
-                  </button>
                 </div>
-                <span className="text-[9px] font-bold text-slate-400 block mt-1 pr-1 leading-normal">
-                  💡 اختر اتجاه محاذاة نصوص ومحتويات هذا القسم (ليمين أو لوسط أو ليسار الصفحة).
-                </span>
+
+                <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-1.5">
+                  <span className="text-[10px] font-black text-slate-400 block">ملاحظات التنسيق</span>
+                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
+                    يتم إدارة جميع قياسات الهوامش والتباعد الداخلي بما يتوافق مع تخطيط الأقسام المتجاوبة على شاشات الجوال والتابلت بشكل تلقائي.
+                  </p>
+                </div>
               </div>
             )}
-
-            {/* Elementor-style Line Typography Accordion */}
-            {!isSimpleMode && EDITABLE_LINES[selectedNode.type] && (
-              <TypographyCustomizer 
-                selectedNodeType={selectedNode.type}
-                props={props}
-                handlePropChange={handlePropChange}
-                expandedLine={expandedLine}
-                setExpandedLine={setExpandedLine}
-              />
-            )}
-
-            {/* Section Background & Decorative Shapes */}
-            <SectionBackgroundControls 
-              props={props}
-              handlePropChange={handlePropChange}
-              isSimpleMode={isSimpleMode}
-            />
-          </div>
-        )}
-
-        {/* ─── Frames Tab ─────────────────────────────────────────────── */}
-        {activeTab === 'frames' && (
-          <div className="space-y-4">
-            <FramesPicker
-              nodeType={selectedNode.type}
-              currentFrame={props.layoutFrame || ''}
-              onFrameChange={(frameId) => handlePropChange('layoutFrame', frameId)}
-            />
-          </div>
-        )}
-
-        {activeTab === 'spacing' && (
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <span className="text-[10px] font-black text-slate-400 block">الهامش الداخلي (Padding)</span>
-              
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-bold text-slate-500 px-1">
-                  <span>التباعد العمودي</span>
-                  <span>{props.paddingTop === 'py-24' ? 'موسع (96px)' : props.paddingTop === 'py-16' ? 'افتراضي (64px)' : 'مضغوط (32px)'}</span>
-                </div>
-                <div className="relative">
-                  <select
-                    value={props.paddingTop ?? 'py-16'}
-                    onChange={(e) => {
-                      handlePropChange('paddingTop', e.target.value);
-                      handlePropChange('paddingBottom', e.target.value);
-                    }}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 outline-none appearance-none"
-                  >
-                    <option value="py-8">مضغوط (py-8)</option>
-                    <option value="py-16">افتراضي (py-16)</option>
-                    <option value="py-24">موسع (py-24)</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-1.5">
-              <span className="text-[10px] font-black text-slate-400 block">ملاحظات التنسيق</span>
-              <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-                يتم إدارة جميع قياسات الهوامش والتباعد الداخلي بما يتوافق مع تخطيط الأقسام المتجاوبة على شاشات الجوال والتابلت بشكل تلقائي.
-              </p>
-            </div>
-          </div>
+          </>
         )}
 
       </div>

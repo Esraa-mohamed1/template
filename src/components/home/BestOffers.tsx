@@ -1,28 +1,51 @@
 // components/sections/BestOffers.tsx
 
 import React from "react";
-import SectionHeader from "../common/SectionHeader";
 import ProductCard from "../ProductCard";
 import { HomeSection } from "../../types/api";
 
 interface SectionBlockProps {
   section: HomeSection;
+  textColor?: string;
+  bgColor?: string;
+  accentColor?: string;
+  cardBg?: string;
   onProductClick: (id: number) => void;
 }
 
-const SectionBlock = ({ section, onProductClick }: SectionBlockProps) => {
+const SectionBlock = ({ 
+  section, 
+  textColor = '#1e293b', 
+  bgColor = '#ffffff', 
+  accentColor = '#f97316', 
+  cardBg = '#ffffff', 
+  onProductClick 
+}: SectionBlockProps) => {
   return (
     <>
       <section
-        className="px-6 py-16"
-        style={{ backgroundColor: section.color ?? "#ffffff" }}
+        className="px-6 py-16 transition-colors duration-300"
+        style={{ backgroundColor: bgColor }}
       >
         <div className="max-w-7xl mx-auto">
-          <SectionHeader title={section.title} showButton />
+          {/* Custom pretty header */}
+          <div className="flex items-center justify-between mb-8" style={{ color: textColor }}>
+            <h2 className="text-3xl font-bold tracking-tight">{section.title}</h2>
+            <button 
+              style={{ backgroundColor: accentColor }}
+              className="px-4 py-1.5 text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-all shadow-sm"
+            >
+              View All
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {section.products.map((product) => (
               <ProductCard
                 key={product.id}
+                textColor={textColor}
+                accentColor={accentColor}
+                cardBg={cardBg}
                 product={{
                   id: String(product.id),
                   name: product.name,
