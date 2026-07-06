@@ -59,6 +59,7 @@ function ProductCard({
   textColor: string;
   imageSize: 'small' | 'medium' | 'large';
 }) {
+  const [hovered, setHovered] = React.useState(false);
   const discount = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : null;
@@ -73,8 +74,16 @@ function ProductCard({
 
   return (
     <div
-      className="group relative rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
-      style={{ backgroundColor: cardBg }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group relative rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer"
+      style={{ 
+        backgroundColor: cardBg,
+        borderColor: hovered ? `${accentColor}40` : '#f1f5f9',
+        boxShadow: hovered 
+          ? `0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px ${accentColor}20` 
+          : '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01)'
+      }}
     >
       {/* Image */}
       <div className={`relative ${imageHeightClass} overflow-hidden bg-slate-50`}>
@@ -129,7 +138,7 @@ function ProductCard({
             )}
           </div>
           <button
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-black transition-all hover:opacity-90 hover:shadow-lg"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-black transition-all hover:opacity-90 hover:shadow-lg active:scale-95 duration-200"
             style={{ backgroundColor: accentColor }}
           >
             <ShoppingCart size={13} /> Add to Cart

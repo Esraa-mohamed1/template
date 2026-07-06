@@ -171,6 +171,10 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
         props.textColor = '#1e293b';
         props.accentColor = '#f97316';
         props.align = 'center';
+        if (type === 'ecommerce-hero') {
+          props.layoutFrame = 'amazon-style';
+          props.productImage = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1600';
+        }
       } else if (type === 'home-categories' || type === 'ecommerce-category-grid') {
         props.bgColor = '#FFF8F0';      // Cream warm white background
         props.cardBg = '#ffffff';       // Pure white cards
@@ -186,6 +190,15 @@ export default function BuilderPage({ onLogout, currentUser }: BuilderPageProps)
         props.bgColor = '#FFF8F0';      // Soft warm background
         props.textColor = '#1e293b';    // Legible dark text
         props.accentColor = '#C0504D'; // Muted berry red button
+      } else if (type === 'amazon-multi-card-grid' || type === 'amazon-deals-row' || type === 'amazon-signin-promo') {
+        props.accentColor = '#FF9900'; // Pure Amazon yellow/orange for buttons & badges
+        props.textColor = '#1e293b';
+        props.cardBg = '#ffffff';
+        if (type === 'amazon-deals-row' || type === 'amazon-signin-promo') {
+          props.bgColor = '#ffffff';
+        } else {
+          props.bgColor = '#FFF8F0';
+        }
       }
     } else {
       // Style Option 1 defaults: Classic / Original Style

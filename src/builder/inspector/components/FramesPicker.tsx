@@ -79,6 +79,31 @@ const heroFrames: FrameOption[] = [
       </svg>
     ),
   },
+  {
+    id: 'amazon-style',
+    label: 'أسلوب أمازون (Overlapping Banner)',
+    description: 'خلفية عريضة مع كروت معلقة متجاوبة في الأسفل',
+    svg: (
+      <svg viewBox="0 0 80 50" className="w-full h-full">
+        <rect width="80" height="50" rx="4" fill="#fffaf5" />
+        {/* Banner area */}
+        <rect x="0" y="0" width="80" height="26" fill="#e2e8f0" />
+        {/* Banner text */}
+        <rect x="6" y="5" width="24" height="3" rx="1" fill="#94a3b8" />
+        <rect x="6" y="10" width="16" height="2" rx="0.5" fill="#cbd5e1" />
+        {/* Overlapping cards */}
+        <rect x="4" y="18" width="15" height="26" rx="2" fill="white" stroke="#f1f5f9" strokeWidth="0.5" />
+        <rect x="23" y="18" width="15" height="26" rx="2" fill="white" stroke="#f1f5f9" strokeWidth="0.5" />
+        <rect x="42" y="18" width="15" height="26" rx="2" fill="white" stroke="#f1f5f9" strokeWidth="0.5" />
+        <rect x="61" y="18" width="15" height="26" rx="2" fill="white" stroke="#f1f5f9" strokeWidth="0.5" />
+        {/* Mini details in cards */}
+        <rect x="7" y="21" width="9" height="9" rx="1" fill="#f8fafc" />
+        <rect x="26" y="21" width="9" height="9" rx="1" fill="#f8fafc" />
+        <rect x="45" y="21" width="9" height="9" rx="1" fill="#f8fafc" />
+        <rect x="64" y="21" width="9" height="9" rx="1" fill="#f8fafc" />
+      </svg>
+    ),
+  },
 ];
 
 const productGridFrames: FrameOption[] = [

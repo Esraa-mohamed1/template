@@ -29,6 +29,9 @@ import EcommerceCategoryGrid from '../components/EcommerceCategoryGrid';
 import EcommercePromoBanner from '../components/EcommercePromoBanner';
 import EcommerceTestimonials from '../components/EcommerceTestimonials';
 import EcommerceNewsletterCTA from '../components/EcommerceNewsletterCTA';
+import AmazonMultiCardGrid from '../components/AmazonMultiCardGrid';
+import AmazonDealsRow from '../components/AmazonDealsRow';
+import AmazonSigninPromo from '../components/AmazonSigninPromo';
 
 // ─── Section Background Wrapper ───────────────────────────────────────────────
 
@@ -175,6 +178,12 @@ export default function RecursiveRenderer({
         return <EcommerceTestimonials {...props} />;
       case 'ecommerce-newsletter':
         return <EcommerceNewsletterCTA {...props} />;
+      case 'amazon-multi-card-grid':
+        return <AmazonMultiCardGrid {...props} />;
+      case 'amazon-deals-row':
+        return <AmazonDealsRow {...props} onProductClick={onProductClick} />;
+      case 'amazon-signin-promo':
+        return <AmazonSigninPromo {...props} />;
       default:
         return (
           <div className="p-4 border border-dashed border-red-200 text-center text-xs text-red-500 font-bold bg-red-50/50 rounded-xl">

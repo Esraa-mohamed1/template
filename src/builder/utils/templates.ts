@@ -11,18 +11,25 @@ export const MOCK_TEMPLATES: Record<string, TemplateSchema> = {
     sections: [
       {
         id: 'home-hero-1',
-        type: 'home-hero',
+        type: 'ecommerce-hero',
         props: {
-          avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop',
-          avatarText: 'E.buy is the right place for you to buy your fashion clothes with a reasonable price and trust.',
-          titlePart1: 'You can feel',
-          titlePart2: 'fashion',
-          titlePart3: 'sense.',
-          buttonText: 'Shop Now',
-          secondButtonText: 'Learn More',
-          img1: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop',
-          img2: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop',
-          img3: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop'
+          layoutFrame: 'amazon-style',
+          headline: 'Discover Amazing Deals',
+          subheadline: 'Shop the latest trends with unbeatable prices. Free shipping on orders over $50.',
+          badge: '🔥 Limited Time',
+          ctaText: 'Shop Now',
+          ctaLink: '#',
+          secondCtaText: 'View All Deals',
+          productImage: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1600',
+          countdownLabel: 'Deal ends in:',
+          showBadge: true,
+          showRating: true,
+          showCountdown: true,
+          bgColor: '#FFF8F0',
+          accentColor: '#f97316',
+          textColor: '#1e293b',
+          cardBg: '#ffffff',
+          imageSize: 'medium'
         }
       },
       {

@@ -2,7 +2,7 @@ import React from 'react';
 import { ShoppingCart, ArrowRight, Tag, Clock, Star } from 'lucide-react';
 
 interface EcommerceHeroBannerProps {
-  layoutFrame?: string; // 'split-right' | 'split-left' | 'centered' | 'fullwidth-overlay'
+  layoutFrame?: string; // 'split-right' | 'split-left' | 'centered' | 'fullwidth-overlay' | 'amazon-style'
   headline?: string;
   subheadline?: string;
   badge?: string;
@@ -18,6 +18,7 @@ interface EcommerceHeroBannerProps {
   showCountdown?: boolean;
   countdownLabel?: string;
   imageSize?: 'small' | 'medium' | 'large';
+  cardBg?: string;
 }
 
 function CountdownTimer({ label }: { label: string }) {
@@ -48,12 +49,13 @@ export default function EcommerceHeroBanner({
   bgColor = '#fff7ed',
   accentColor = '#f97316',
   textColor = '#1e293b',
-  productImage = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop',
+  productImage = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1600',
   showBadge = true,
   showRating = true,
   showCountdown = true,
   countdownLabel = 'Deal ends in:',
-  imageSize = 'medium'
+  imageSize = 'medium',
+  cardBg = '#ffffff'
 }: EcommerceHeroBannerProps) {
 
   // Map image width and height classes
@@ -63,6 +65,155 @@ export default function EcommerceHeroBanner({
     large: 'max-w-[640px] aspect-[4/3] mx-auto',
   };
   const imageSizeClass = sizeMap[imageSize] || 'max-w-[480px] aspect-[4/3] mx-auto';
+
+  // ── FRAME: amazon-style ──────────────────────────────────────────────────────
+  if (layoutFrame === 'amazon-style') {
+    return (
+      <section style={{ backgroundColor: bgColor }} className="w-full relative pb-16 transition-colors duration-300">
+        {/* Full-width Wide Banner Image */}
+        <div className="relative w-full h-[320px] md:h-[400px] lg:h-[500px] overflow-hidden">
+          <img 
+            src={productImage || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1600'} 
+            alt="Amazon Wide Banner" 
+            className="w-full h-full object-cover object-top"
+          />
+          {/* Top text content over banner */}
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-black/10 to-black/35 flex flex-col justify-start p-8 md:p-12 text-white">
+            <div className="max-w-xl text-left" dir="ltr">
+              {showBadge && badge && (
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded bg-rose-600 text-white uppercase tracking-wider mb-3 shadow-sm">
+                  {badge}
+                </span>
+              )}
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight tracking-tight drop-shadow-md">
+                {headline}
+              </h1>
+              <p className="text-xs md:text-sm text-slate-100 opacity-90 mb-4 font-medium drop-shadow-sm max-w-lg leading-relaxed">
+                {subheadline}
+              </p>
+            </div>
+          </div>
+          {/* Bottom fade to match background */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t pointer-events-none" 
+            style={{ 
+              backgroundImage: `linear-gradient(to top, ${bgColor} 0%, rgba(255, 248, 240, 0.4) 60%, transparent 100%)` 
+            }}
+          />
+        </div>
+
+        {/* Overlapping Cards Container */}
+        <div className="max-w-7xl mx-auto px-6 relative z-20 -mt-20 md:-mt-28 lg:-mt-40">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Card 1: Shop Fashion Trends */}
+            <div 
+              style={{ backgroundColor: cardBg }} 
+              className="rounded-2xl p-5 shadow-lg border border-slate-100 flex flex-col hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+              <h3 style={{ color: textColor }} className="text-base font-bold mb-3">أحدث صيحات الموضة</h3>
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-slate-50">
+                <img 
+                  src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=400" 
+                  alt="Fashion" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <a 
+                href={ctaLink} 
+                style={{ color: accentColor }} 
+                className="text-xs font-black mt-auto inline-flex items-center gap-1 hover:underline"
+              >
+                تسوّق الآن <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            {/* Card 2: Smart Electronics */}
+            <div 
+              style={{ backgroundColor: cardBg }} 
+              className="rounded-2xl p-5 shadow-lg border border-slate-100 flex flex-col hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+              <h3 style={{ color: textColor }} className="text-base font-bold mb-3">الأجهزة والأدوات الذكية</h3>
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-slate-50">
+                <img 
+                  src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400" 
+                  alt="Electronics" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <a 
+                href={ctaLink} 
+                style={{ color: accentColor }} 
+                className="text-xs font-black mt-auto inline-flex items-center gap-1 hover:underline"
+              >
+                اكتشف المزيد <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            {/* Card 3: Top Categories Grid */}
+            <div 
+              style={{ backgroundColor: cardBg }} 
+              className="rounded-2xl p-5 shadow-lg border border-slate-100 flex flex-col hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+              <h3 style={{ color: textColor }} className="text-base font-bold mb-3">تصفح الفئات الرئيسية</h3>
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
+                {[
+                  { label: 'أحذية الرياضة', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200' },
+                  { label: 'ساعات فاخرة', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=200' },
+                  { label: 'نظارات شمسية', img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=200' },
+                  { label: 'صوتيات وبلوتوث', img: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?q=80&w=200' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex flex-col gap-1 cursor-pointer">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-slate-50">
+                      <img src={item.img} alt={item.label} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                    </div>
+                    <span style={{ color: textColor }} className="text-[9.5px] font-black leading-none truncate">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+              <a 
+                href={ctaLink} 
+                style={{ color: accentColor }} 
+                className="text-xs font-black mt-auto inline-flex items-center gap-1 hover:underline"
+              >
+                تصفح كل الفئات <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            {/* Card 4: Countdown Deal Card */}
+            <div 
+              style={{ backgroundColor: cardBg }} 
+              className="rounded-2xl p-5 shadow-lg border border-slate-100 flex flex-col hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 style={{ color: textColor }} className="text-base font-bold">عرض محدود اليوم</h3>
+                <span className="bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-lg animate-pulse">خصم 20%</span>
+              </div>
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-slate-50">
+                <img 
+                  src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=400" 
+                  alt="Deal of Day" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              {showCountdown && (
+                <div className="mb-4">
+                  <CountdownTimer label={countdownLabel || 'ينتهي خلال:'} />
+                </div>
+              )}
+              <button 
+                style={{ backgroundColor: accentColor }}
+                className="w-full py-2.5 rounded-xl text-white text-xs font-black flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-md"
+              >
+                <ShoppingCart size={13} /> {ctaText}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // ── FRAME: centered ──────────────────────────────────────────────────────────
   if (layoutFrame === 'centered') {
