@@ -70,6 +70,9 @@ export default function TypographyCustomizer({
       <span className="text-[10px] font-black text-slate-400 pr-1 block">
         تنسيق وتخصيص أسطر النصوص (طراز المنتور)
       </span>
+      <span className="text-[9px] font-bold text-slate-400 block pr-1 leading-normal">
+        💡 اضغط على زر التعديل (اسم النص أدناه) لتوسيع خيارات التنسيق المخصصة كنوع الخط وحجمه ولونه.
+      </span>
       
       <div className="space-y-2">
         {lines.map((line) => {
@@ -97,6 +100,9 @@ export default function TypographyCustomizer({
                   {/* Text Input */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 block">محتوى النص</label>
+                    <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                      💡 اكتب النص الذي ترغب في عرضه للزوار في هذا الحقل.
+                    </span>
                     {line.type === 'textarea' ? (
                       <textarea
                         rows={2}
@@ -117,6 +123,9 @@ export default function TypographyCustomizer({
                   {/* Font Family */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 block">نوع الخط (Font Family)</label>
+                    <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                      💡 اختر نوع الخط المناسب الذي يتماشى مع الهوية البصرية لمتجرك.
+                    </span>
                     <div className="relative">
                       <select
                         value={fontFamily}
@@ -134,6 +143,9 @@ export default function TypographyCustomizer({
                   {/* Font Size */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 block">حجم الخط (Size)</label>
+                    <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                      💡 التحكم في حجم خط النص لتسهيل القراءة وتوضيح التسلسل الهرمي.
+                    </span>
                     <div className="relative">
                       <select
                         value={fontSize}
@@ -152,6 +164,9 @@ export default function TypographyCustomizer({
                   {/* Font Weight */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 block">وزن الخط (Weight)</label>
+                    <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                      💡 حدد سمك الخط (عريض، عادي، خفيف) لإبراز النصوص الهامة.
+                    </span>
                     <div className="relative">
                       <select
                         value={fontWeight}
@@ -170,6 +185,9 @@ export default function TypographyCustomizer({
                   {/* Font Color */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 block">لون النص (Color)</label>
+                    <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                      💡 اضغط على مربع اللون (زر التعديل) لتحديد لون النص المخصص لتسهيل القراءة وضمان التباين الجيد.
+                    </span>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"

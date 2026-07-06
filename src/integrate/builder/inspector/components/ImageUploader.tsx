@@ -5,12 +5,14 @@ interface ImageUploaderProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  note?: string;
 }
 
 export default function ImageUploader({
   value,
   onChange,
   label = 'تحميل صورة',
+  note,
 }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -58,6 +60,11 @@ export default function ImageUploader({
   return (
     <div className="space-y-1.5 text-right" dir="rtl">
       {label && <label className="text-[10px] font-black text-slate-400 block">{label}</label>}
+      {note && (
+        <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+          💡 {note}
+        </span>
+      )}
       
       {value ? (
         // Preview state

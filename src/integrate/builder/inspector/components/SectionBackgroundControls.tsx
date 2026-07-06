@@ -25,6 +25,9 @@ export default function SectionBackgroundControls({
       {/* ── Section Background Controls ── */}
       <div className="space-y-3.5 pt-4 border-t border-slate-100">
         <span className="text-[10px] font-black text-slate-500 block">خلفية القسم (Section Background)</span>
+        <span className="text-[9px] font-bold text-slate-400 block mt-1 leading-normal">
+          💡 اختر نوع تعبئة الخلفية (لون صلب، تدرج لوني، أو صورة) لتعديل المظهر العام للقسم.
+        </span>
 
         {/* Background type toggle */}
         <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1">
@@ -47,6 +50,10 @@ export default function SectionBackgroundControls({
         {/* Solid color */}
         {activeBgType === 'solid' && (
           <div className="space-y-1.5">
+            <label className="text-[9px] font-black text-slate-400 block">لون الخلفية الصلب</label>
+            <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+              💡 اضغط على مربع اللون (زر التعديل) لفتح لوحة الألوان وتعيين لون لخلفية القسم بالكامل.
+            </span>
             <div className="flex items-center gap-3">
               <input
                 type="color"
@@ -67,18 +74,18 @@ export default function SectionBackgroundControls({
                 <span className="text-[10px] font-bold text-slate-500">اضغط على المربع لاختيار لون التعبئة</span>
               )}
             </div>
-            <span className="text-[9px] font-bold text-slate-400 block mt-1 leading-normal">
-              💡 اضغط على المربع الملون لفتح لوحة الألوان وتعيين لون لخلفية القسم بالكامل.
-            </span>
           </div>
         )}
 
         {/* Gradient */}
         {!isSimpleMode && activeBgType === 'gradient' && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 block">اللون الأول</label>
+                <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                  💡 اضغط على مربع اللون (زر التعديل) لتعديل لون بداية التدرج.
+                </span>
                 <div className="flex items-center gap-1.5">
                   <input type="color" value={props.sectionGradientFrom || '#2563eb'} onChange={(e) => handlePropChange('sectionGradientFrom', e.target.value)} className="w-8 h-8 p-0 rounded-lg border border-slate-200 cursor-pointer overflow-hidden bg-transparent" />
                   <input type="text" value={props.sectionGradientFrom || '#2563eb'} onChange={(e) => handlePropChange('sectionGradientFrom', e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-mono outline-none" dir="ltr" />
@@ -86,26 +93,35 @@ export default function SectionBackgroundControls({
               </div>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 block">اللون الثاني</label>
+                <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                  💡 اضغط على مربع اللون (زر التعديل) لتعديل لون نهاية التدرج.
+                </span>
                 <div className="flex items-center gap-1.5">
                   <input type="color" value={props.sectionGradientTo || '#7c3aed'} onChange={(e) => handlePropChange('sectionGradientTo', e.target.value)} className="w-8 h-8 p-0 rounded-lg border border-slate-200 cursor-pointer overflow-hidden bg-transparent" />
                   <input type="text" value={props.sectionGradientTo || '#7c3aed'} onChange={(e) => handlePropChange('sectionGradientTo', e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-mono outline-none" dir="ltr" />
                 </div>
               </div>
             </div>
-            <div className="relative">
-              <select
-                value={props.sectionGradientDir || 'to-br'}
-                onChange={(e) => handlePropChange('sectionGradientDir', e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 outline-none appearance-none"
-              >
-                <option value="to-r">يمين ← يسار</option>
-                <option value="to-l">يسار ← يمين</option>
-                <option value="to-b">أسفل</option>
-                <option value="to-t">أعلى</option>
-                <option value="to-br">قطري ↘</option>
-                <option value="to-tr">قطري ↗</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-slate-400 block">اتجاه التدرج</label>
+              <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                💡 اختر اتجاه زاوية التدرج اللوني لتغيير مسار تدفق الألوان في القسم.
+              </span>
+              <div className="relative">
+                <select
+                  value={props.sectionGradientDir || 'to-br'}
+                  onChange={(e) => handlePropChange('sectionGradientDir', e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 outline-none appearance-none"
+                >
+                  <option value="to-r">يمين ← يسار</option>
+                  <option value="to-l">يسار ← يمين</option>
+                  <option value="to-b">أسفل</option>
+                  <option value="to-t">أعلى</option>
+                  <option value="to-br">قطري ↘</option>
+                  <option value="to-tr">قطري ↗</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
             <div
               className="w-full h-8 rounded-xl border border-slate-100"
@@ -123,10 +139,8 @@ export default function SectionBackgroundControls({
               value={props.sectionBgImage || ''} 
               onChange={(val) => handlePropChange('sectionBgImage', val)} 
               label="تحميل صورة خلفية القسم" 
+              note="اسحب صورة لخلفية القسم لتعبئته، أو اضغط داخل الصندوق لاختيار ملف صورة من جهازك."
             />
-            <span className="text-[9px] font-bold text-slate-400 block mt-1 leading-normal">
-              💡 اسحب صورة لخلفية القسم لتعبئته، أو اضغط داخل الصندوق لاختيار ملف صورة من جهازك.
-            </span>
             
             {!isSimpleMode && (
               <div className="space-y-1 pt-1.5 border-t border-slate-100">
@@ -134,6 +148,9 @@ export default function SectionBackgroundControls({
                   <span>شفافية التغطية الداكنة</span>
                   <span>{props.sectionBgOverlay ?? 40}%</span>
                 </div>
+                <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                  💡 اضبط شفافية التغطية لضمان وضوح نصوص القسم فوق صورة الخلفية.
+                </span>
                 <input
                   type="range" min="0" max="90" step="5"
                   value={props.sectionBgOverlay ?? 40}
@@ -150,6 +167,9 @@ export default function SectionBackgroundControls({
       {!isSimpleMode && (
         <div className="space-y-3 pt-4 border-t border-slate-100">
           <span className="text-[10px] font-black text-slate-500 block">الأشكال الزخرفية (Decorative Shapes)</span>
+          <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+            💡 أضف شكلاً زخرفياً مميزاً في الخلفية لإضفاء لمسة جمالية على تصميم القسم.
+          </span>
           <div className="relative">
             <select
               value={props.sectionShape || 'none'}
@@ -187,6 +207,9 @@ export default function SectionBackgroundControls({
                   <span>شفافية الشكل</span>
                   <span>{props.sectionShapeOpacity ?? 20}%</span>
                 </div>
+                <span className="text-[9px] font-bold text-slate-400 block leading-normal">
+                  💡 تحكم في شفافية الشكل الزخرفي لجعله متناسقاً وغير مشتت للانتباه.
+                </span>
                 <input
                   type="range" min="5" max="80" step="5"
                   value={props.sectionShapeOpacity ?? 20}

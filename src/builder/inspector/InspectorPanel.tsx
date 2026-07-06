@@ -30,6 +30,32 @@ import ImageUploader from './components/ImageUploader';
 import FramesPicker, { FRAMES_BY_TYPE } from './components/FramesPicker';
 import BackendDataNote from './components/BackendDataNote';
 
+const getStyleFieldNote = (field: any): string => {
+  if (field.note) return field.note;
+  
+  const name = (field.name || '').toLowerCase();
+  const label = field.label || '';
+  if (field.type === 'color') {
+    if (name.includes('bg') || name.includes('background') || label.includes('خلفية')) {
+      return 'تحديد لون الخلفية المناسب لهذا العنصر لتوفير تباين بصري مريح.';
+    }
+    if (name.includes('text') || name.includes('title') || name.includes('subtitle') || label.includes('نص') || label.includes('عنوان')) {
+      return 'تغيير لون النص لضمان وضوح القراءة وتناسقه مع ألوان الخلفية.';
+    }
+    if (name.includes('accent') || name.includes('active') || name.includes('button') || label.includes('تميز') || label.includes('زر')) {
+      return 'لون تمييزي يجذب انتباه الزائر للعناصر التفاعلية والأزرار الهامة.';
+    }
+    return 'اضغط على مربع اللون (زر التعديل) لفتح لوحة الألوان وتخصيص اللون المناسب لهذا الخيار.';
+  }
+  if (name === 'align') {
+    return 'اختر اتجاه محاذاة نصوص ومحتويات هذا القسم (ليمين أو لوسط أو ليسار الصفحة).';
+  }
+  if (name === 'imagesize') {
+    return 'التحكم في أبعاد وحجم الصور المعروضة داخل هذا القسم.';
+  }
+  return `تخصيص قيمة ${label} للحصول على مظهر متناسق وجذاب.`;
+};
+
 export default function InspectorPanel() {
   const { selectedNodeId, currentTemplate, updateNodeProps, setSelectedNodeId } = useBuilderStore();
   const [activeTab, setActiveTab] = useState<'content' | 'style' | 'frames' | 'spacing'>('content');
@@ -499,59 +525,64 @@ export default function InspectorPanel() {
 
             {activeTab === 'style' && (
               <div className="space-y-5">
-                {stylingFields.map((field) => (
-                  <div key={field.name} className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 pr-1 block">
-                      {field.label}
-                    </label>
+                {stylingFields.map((field) => {
+                  const fieldNote = getStyleFieldNote(field);
+                  return (
+                    <div key={field.name} className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 pr-1 block">
+                        {field.label}
+                      </label>
+                      {fieldNote && (
+                        <p className="text-[10px] text-slate-500 font-semibold bg-blue-50/20 text-blue-700/80 px-2.5 py-1.5 rounded-lg border border-blue-100/30 mt-1 leading-normal">
+                          {fieldNote}
+                        </p>
+                      )}
 
-                    {field.type === 'color' && (
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="color" 
-                            value={props[field.name] ?? field.defaultValue} 
-                            onChange={(e) => handlePropChange(field.name, e.target.value)}
-                            className="w-10 h-10 p-0 rounded-xl border border-slate-200 cursor-pointer overflow-hidden outline-none bg-transparent"
-                          />
-                          <input 
-                            type="text" 
-                            value={props[field.name] ?? field.defaultValue} 
-                            onChange={(e) => handlePropChange(field.name, e.target.value)}
-                            className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-mono font-bold text-slate-600 outline-none text-left"
-                            dir="ltr"
-                          />
+                      {field.type === 'color' && (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="color" 
+                              value={props[field.name] ?? field.defaultValue} 
+                              onChange={(e) => handlePropChange(field.name, e.target.value)}
+                              className="w-10 h-10 p-0 rounded-xl border border-slate-200 cursor-pointer overflow-hidden outline-none bg-transparent"
+                            />
+                            <input 
+                              type="text" 
+                              value={props[field.name] ?? field.defaultValue} 
+                              onChange={(e) => handlePropChange(field.name, e.target.value)}
+                              className="flex-1 p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-mono font-bold text-slate-600 outline-none text-left"
+                              dir="ltr"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {field.type === 'select' && (
-                      <div className="relative">
-                        <select
-                          value={props[field.name] ?? field.defaultValue}
-                          onChange={(e) => handlePropChange(field.name, e.target.value)}
-                          className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
-                        >
-                          {field.options?.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </select>
-                        <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-                    )}
-
-                    {field.note && (
-                      <p className="text-[10px] text-slate-500 font-semibold bg-blue-50/20 text-blue-700/80 px-2.5 py-1.5 rounded-lg border border-blue-100/30 mt-1 leading-normal">
-                        {field.note}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                      {field.type === 'select' && (
+                        <div className="relative">
+                          <select
+                            value={props[field.name] ?? field.defaultValue}
+                            onChange={(e) => handlePropChange(field.name, e.target.value)}
+                            className="w-full p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl text-xs font-bold text-slate-700 outline-none transition-all appearance-none"
+                          >
+                            {field.options?.map((opt) => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                          <ChevronDown className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* Align text blocks */}
                 {registryConfig.fields.some(f => f.name === 'align') && (
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 pr-1 block">محاذاة النص والكتلة</label>
+                    <span className="text-[9px] font-bold text-slate-400 block mt-1 pr-1 leading-normal">
+                      💡 اختر اتجاه محاذاة نصوص ومحتويات هذا القسم (ليمين أو لوسط أو ليسار الصفحة).
+                    </span>
                     <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1 items-center">
                       <button
                         type="button"
@@ -581,9 +612,6 @@ export default function InspectorPanel() {
                         <AlignLeft className="w-4 h-4" />
                       </button>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-400 block mt-1 pr-1 leading-normal">
-                      💡 اختر اتجاه محاذاة نصوص ومحتويات هذا القسم (ليمين أو لوسط أو ليسار الصفحة).
-                    </span>
                   </div>
                 )}
 
