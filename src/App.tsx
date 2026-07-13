@@ -192,6 +192,7 @@ function AppContent() {
                 onBack={() => navigate("/")}
                 onUpdateQuantity={updateQuantity}
                 onRemove={removeFromCart}
+                onLoginRequired={() => navigate("/auth")}
                 onCheckout={() => {
                   if (currentUser) {
                     navigate("/checkout");
@@ -292,6 +293,7 @@ function ProductPageWrapper({ onAddToCart }: { onAddToCart: any }) {
       productId={id}
       onBack={() => navigate(-1)}
       onAddToCart={onAddToCart}
+      onNavigateToLogin={() => navigate("/auth")}
     />
   );
 }

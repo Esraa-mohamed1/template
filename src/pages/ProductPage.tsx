@@ -11,16 +11,24 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-react";
-import { ProductDetail } from "../types/api";
+import { ProductDetail, Review } from "../types/api";
 import { productService } from "../services/productService";
+import { ReviewsSection } from "../components/ReviewsSection";
+import { tokenStorage } from "../services/authClient";
 
 interface ProductPageProps {
   productId: string;
   onBack: () => void;
   onAddToCart: (p: ProductDetail, q: number, variant?: any) => void;
+  onNavigateToLogin?: () => void;
 }
 
-const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
+const ProductPage = ({
+  productId,
+  onBack,
+  onAddToCart,
+  onNavigateToLogin,
+}: ProductPageProps) => {
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -29,6 +37,18 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  const currentUserId = (() => {
+    try {
+      const token = tokenStorage.get();
+      if (!token) return undefined;
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.user_id as number;
+    } catch {
+      return undefined;
+    }
+  })();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -40,6 +60,7 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
       .then((res) => {
         const p = res.data;
         setProduct(p);
+        setReviews(p.reviews ?? []);
 
         const firstImg =
           p.gallery?.find((g) => g.is_primary)?.image ??
@@ -84,7 +105,6 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
     ? product.gallery.map((g) => g.image)
     : ["/placeholder.png"];
 
-  // ألوان ومقاسات فريدة من الـ variants
   const colors = Array.from(
     new Set(product.variants?.map((v) => v.color).filter(Boolean)),
   );
@@ -98,6 +118,12 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
 
   const handleAddToCart = () => {
     onAddToCart(product, quantity, selectedVariant);
+  };
+
+  const handleReviewSaved = () => {
+    productService
+      .getOne(productId)
+      .then((r) => setReviews(r.data.reviews ?? []));
   };
 
   return (
@@ -138,7 +164,11 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
                 <button
                   key={i}
                   onClick={() => setSelectedImg(img)}
-                  className={`flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all ${selectedImg === img ? "border-brand-blue scale-95" : "border-transparent opacity-60 hover:opacity-100 scale-100"}`}
+                  className={`flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all ${
+                    selectedImg === img
+                      ? "border-brand-blue scale-95"
+                      : "border-transparent opacity-60 hover:opacity-100 scale-100"
+                  }`}
                 >
                   <img
                     src={img}
@@ -216,7 +246,11 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`min-w-12 h-12 px-4 rounded-xl border flex items-center justify-center text-sm font-bold transition-all ${selectedSize === size ? "border-brand-blue text-brand-blue bg-blue-50/50" : "border-gray-100 hover:border-gray-200"}`}
+                        className={`min-w-12 h-12 px-4 rounded-xl border flex items-center justify-center text-sm font-bold transition-all ${
+                          selectedSize === size
+                            ? "border-brand-blue text-brand-blue bg-blue-50/50"
+                            : "border-gray-100 hover:border-gray-200"
+                        }`}
                       >
                         {size}
                       </button>
@@ -237,8 +271,12 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
                         onClick={() => setSelectedColor(color)}
                         title={color}
                         style={{ backgroundColor: color.toLowerCase() }}
-                        className={`w-10 h-10 rounded-full border-2 border-white shadow-sm transition-all ${selectedColor === color ? "ring-2 ring-brand-blue" : ""}`}
-                      ></button>
+                        className={`w-10 h-10 rounded-full border-2 border-white shadow-sm transition-all ${
+                          selectedColor === color
+                            ? "ring-2 ring-brand-blue"
+                            : ""
+                        }`}
+                      />
                     ))}
                   </div>
                 </div>
@@ -302,6 +340,15 @@ const ProductPage = ({ productId, onBack, onAddToCart }: ProductPageProps) => {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <ReviewsSection
+          productId={product.id}
+          reviews={reviews}
+          currentUserId={currentUserId}
+          onReviewSaved={handleReviewSaved}
+          onLoginRequired={onNavigateToLogin}
+        />
       </div>
     </motion.div>
   );

@@ -1,7 +1,7 @@
 // src/services/authClient.ts
 import { AUTH_BASE_URL } from "../config/api";
 
-const TOKEN_KEY = "ebuy_token";
+const TOKEN_KEY = "token";
 
 export const tokenStorage = {
   get: () => localStorage.getItem(TOKEN_KEY),

@@ -87,13 +87,13 @@ const CategoriesPage = ({
 
   const toProduct = (p: CategoryProduct): Product => ({
     id: String(p.id),
+    slug: p.slug, // ✅ ضيف السطر ده
     name: p.name,
     price: parseFloat(p.price),
     oldPrice: parseFloat(p.compare_price),
     rating: parseFloat(p.average_rating),
     img: p.thumbnail?.image ?? "/placeholder.png",
   });
-
   return (
     <motion.div
       initial={{ opacity: 0 }}

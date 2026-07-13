@@ -26,6 +26,7 @@ export interface Transaction {
 export interface Product {
   name: string;
   price: number;
+  slug: string;
   img: string;
   oldPrice?: number;
   discount?: number;
@@ -41,3 +42,4 @@ export interface CartItem extends Product {
   selectedSize?: string;
   selectedColor?: string;
 }
+
