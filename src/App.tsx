@@ -21,13 +21,13 @@ import CartPage from "./pages/CartPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
-import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutPage, { OrderPayload } from "./pages/CheckoutPage";
 
 import { User, Order, Transaction, CartItem } from "./types";
 import { ProductDetail } from "./types/api";
-import * as orderService from "./services/orderService";
 import { authService, authStorage } from "./services/authService";
 import { mapAuthUserToUser } from "./utils/mapUser";
+import Swal from "sweetalert2";
 
 function AppContent() {
   const navigate = useNavigate();
@@ -100,29 +100,42 @@ function AppContent() {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleCheckoutComplete = (method: string) => {
+  // ── الطلب اتنفذ فعليًا جوه CheckoutPage (عن طريق orderService.create اللي بيكلم الـ API) ──
+  // هنا بس بنستقبل النتيجة، نحدث الـ state المحلي، ونعمل تنقل
+  const handleCheckoutComplete = (
+    method: string,
+    gatewayId?: number,
+    receipt?: File | null,
+    orderData?: OrderPayload,
+    orderId?: number,
+  ) => {
     if (!currentUser) {
       navigate("/auth");
       return;
     }
 
-    const subtotal = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    );
-    const shipping = subtotal > 99 ? 0 : 15;
-    const orderTotal = subtotal + shipping;
+    if (orderId && orderData) {
+      const newOrder: Order = {
+        id: orderId,
+        items: orderData.items,
+        total: orderData.totals.total,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      } as unknown as Order;
 
-    const newOrder = orderService.createOrder(cartItems, orderTotal);
-    const newTransaction = orderService.createTransaction(
-      newOrder.id,
-      orderTotal,
-      method,
-    );
+      const newTransaction: Transaction = {
+        id: orderId,
+        orderId,
+        amount: orderData.totals.total,
+        method,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      } as unknown as Transaction;
 
-    setOrders([newOrder, ...orders]);
-    setTransactions([newTransaction, ...transactions]);
-    alert("Order placed successfully! Thank you for shopping with E.buy.");
+      setOrders((prev) => [newOrder, ...prev]);
+      setTransactions((prev) => [newTransaction, ...prev]);
+    }
+
     setCartItems([]);
     navigate("/");
   };
@@ -197,7 +210,13 @@ function AppContent() {
                   if (currentUser) {
                     navigate("/checkout");
                   } else {
-                    alert("Please sign in to proceed with checkout.");
+                    Swal.fire({
+                      icon: "info",
+                      title: "سجّل دخولك الأول",
+                      text: "لازم تسجل دخول عشان تكمل عملية الشراء",
+                      confirmButtonText: "تمام",
+                      confirmButtonColor: "#2563eb",
+                    });
                     navigate("/auth");
                   }
                 }}
@@ -257,6 +276,7 @@ function AppContent() {
                 items={cartItems}
                 onBack={() => navigate("/cart")}
                 onComplete={handleCheckoutComplete}
+                currentUser={currentUser ?? undefined}
               />
             }
           />

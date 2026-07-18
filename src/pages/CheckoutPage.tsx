@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Swal from "sweetalert2";
+import "animate.css";
 import {
   ArrowLeft,
   ArrowRight,
@@ -360,6 +362,29 @@ const CheckoutPage = ({
 
       const orderId = res.data?.data?.order_id;
 
+      // ── SweetAlert2: رسالة نجاح تنفيذ الطلب ──
+      await Swal.fire({
+        icon: "success",
+        title: "تم إنشاء طلبك بنجاح! 🎉",
+        html: `<p style="font-size:14px;color:#6b7280;margin-top:4px;">تقدر تتابع طلبك من خلال الملف الشخصي بتاعك</p>`,
+        confirmButtonText: "تمام",
+        confirmButtonColor: "#2563eb",
+        background: "#ffffff",
+        color: "#0f172a",
+        width: "min(90vw, 420px)",
+        customClass: {
+          popup: "rounded-[2rem] shadow-xl !px-6 !py-8",
+          confirmButton: "rounded-2xl px-8 py-3 font-bold",
+        },
+        buttonsStyling: true,
+        showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster",
+        },
+      });
+
       onComplete(
         selectedGateway.name,
         selectedGateway.id,
@@ -373,6 +398,26 @@ const CheckoutPage = ({
         err?.message ||
         "حصل خطأ أثناء تنفيذ الطلب، حاول تاني";
       setSubmitError(message);
+
+      // ── SweetAlert2: رسالة خطأ ──
+      Swal.fire({
+        icon: "error",
+        title: "حصلت مشكلة",
+        text: message,
+        confirmButtonText: "حسناً",
+        confirmButtonColor: "#ef4444",
+        width: "min(90vw, 420px)",
+        customClass: {
+          popup: "rounded-[2rem] shadow-xl !px-6 !py-8",
+          confirmButton: "rounded-2xl px-8 py-3 font-bold",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster",
+        },
+      });
     } finally {
       setSubmitting(false);
     }
@@ -386,28 +431,30 @@ const CheckoutPage = ({
       exit={{ opacity: 0, y: -20 }}
       className="bg-gray-50/50 min-h-screen pb-20"
     >
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-12">
+        <div className="flex items-center gap-4 mb-8 sm:mb-12">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-white rounded-full transition-all group shadow-sm bg-white"
+            className="p-2 hover:bg-white rounded-full transition-all group shadow-sm bg-white flex-shrink-0"
           >
             <ArrowLeft
               size={20}
               className="group-hover:-translate-x-1 transition-transform"
             />
           </button>
-          <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Checkout
+          </h1>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12 items-start">
-          <div className="lg:col-span-8 space-y-8">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="lg:col-span-8 space-y-8 order-2 lg:order-1">
             {/* Steps Indicator */}
-            <div className="flex items-center gap-4 mb-8 px-2">
+            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-1 sm:px-2">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${step >= 1 ? "bg-brand-blue text-white" : "bg-gray-200 text-gray-500"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step >= 1 ? "bg-brand-blue text-white" : "bg-gray-200 text-gray-500"}`}
                 >
                   1
                 </div>
@@ -417,10 +464,10 @@ const CheckoutPage = ({
                   Shipping
                 </span>
               </div>
-              <div className="h-px w-12 bg-gray-200" />
+              <div className="h-px w-8 sm:w-12 bg-gray-200" />
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${step >= 2 ? "bg-brand-blue text-white" : "bg-gray-200 text-gray-500"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step >= 2 ? "bg-brand-blue text-white" : "bg-gray-200 text-gray-500"}`}
                 >
                   2
                 </div>
@@ -437,10 +484,12 @@ const CheckoutPage = ({
               <motion.div
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100"
+                className="bg-white rounded-[1.75rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100"
               >
-                <h2 className="text-xl font-bold mb-8">Shipping Information</h2>
-                <div className="grid md:grid-cols-2 gap-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-6 sm:mb-8">
+                  Shipping Information
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">
                       Full Name
@@ -448,7 +497,7 @@ const CheckoutPage = ({
                     <input
                       type="text"
                       placeholder="John Doe"
-                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -462,21 +511,21 @@ const CheckoutPage = ({
                     <input
                       type="email"
                       placeholder="john@example.com"
-                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
                     />
                   </div>
-                  <div className="md:col-span-2 space-y-2">
+                  <div className="sm:col-span-2 space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">
                       Shipping Address
                     </label>
                     <input
                       type="text"
                       placeholder="Street address, apartment, suite, etc."
-                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
                       value={formData.address}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
@@ -492,7 +541,7 @@ const CheckoutPage = ({
                     <input
                       type="tel"
                       placeholder="+1 (555) 000-0000"
-                      className={`w-full bg-gray-50 border rounded-2xl px-6 py-4 focus:outline-none transition-colors font-medium text-sm ${
+                      className={`w-full bg-gray-50 border rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none transition-colors font-medium text-sm ${
                         touched && formData.phone.trim().length < 8
                           ? "border-red-300 focus:border-red-400"
                           : "border-gray-100 focus:border-brand-blue"
@@ -517,7 +566,7 @@ const CheckoutPage = ({
                     <input
                       type="tel"
                       placeholder="+1 (555) 000-0000"
-                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none focus:border-brand-blue transition-colors font-medium text-sm"
                       value={formData.phone2}
                       onChange={(e) =>
                         setFormData({ ...formData, phone2: e.target.value })
@@ -527,7 +576,7 @@ const CheckoutPage = ({
                 </div>
 
                 {/* ── اختيار المحافظة ── */}
-                <div className="mt-10">
+                <div className="mt-8 sm:mt-10">
                   <div className="flex items-center gap-2 mb-4">
                     <MapPin size={16} className="text-gray-400" />
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -543,7 +592,7 @@ const CheckoutPage = ({
                     </p>
                   ) : (
                     <select
-                      className={`w-full bg-gray-50 border rounded-2xl px-6 py-4 focus:outline-none transition-colors font-bold text-sm appearance-none ${
+                      className={`w-full bg-gray-50 border rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none transition-colors font-bold text-sm appearance-none ${
                         touched && !selectedGovernorate
                           ? "border-red-300 focus:border-red-400"
                           : "border-gray-100 focus:border-brand-blue"
@@ -577,7 +626,7 @@ const CheckoutPage = ({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-8 overflow-hidden"
+                      className="mt-6 sm:mt-8 overflow-hidden"
                     >
                       <div className="flex items-center gap-2 mb-4">
                         <Building2 size={16} className="text-gray-400" />
@@ -586,7 +635,7 @@ const CheckoutPage = ({
                         </h3>
                       </div>
                       <select
-                        className={`w-full bg-gray-50 border rounded-2xl px-6 py-4 focus:outline-none transition-colors font-bold text-sm appearance-none ${
+                        className={`w-full bg-gray-50 border rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 focus:outline-none transition-colors font-bold text-sm appearance-none ${
                           touched && !selectedBranch
                             ? "border-red-300 focus:border-red-400"
                             : "border-gray-100 focus:border-brand-blue"
@@ -616,7 +665,7 @@ const CheckoutPage = ({
 
                 <button
                   onClick={handleContinue}
-                  className="w-full mt-10 bg-brand-blue hover:bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all"
+                  className="w-full mt-8 sm:mt-10 bg-brand-blue hover:bg-blue-600 text-white font-bold py-3.5 sm:py-4 rounded-2xl flex items-center justify-center gap-3 transition-all"
                 >
                   Continue to Payment
                   <ArrowRight size={20} />
@@ -629,13 +678,13 @@ const CheckoutPage = ({
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-8"
               >
-                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
-                  <h2 className="text-xl font-bold mb-8">
+                <div className="bg-white rounded-[1.75rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100">
+                  <h2 className="text-lg sm:text-xl font-bold mb-6 sm:mb-8">
                     Choose Payment Method
                   </h2>
 
                   {gatewaysLoading && (
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       {[...Array(4)].map((_, i) => (
                         <div
                           key={i}
@@ -652,7 +701,7 @@ const CheckoutPage = ({
                   )}
 
                   {!gatewaysLoading && gateways.length > 0 && (
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
                       {gateways.map((gw) => {
                         const isSelected = selectedGateway?.id === gw.id;
                         return (
@@ -662,14 +711,14 @@ const CheckoutPage = ({
                               setSelectedGateway(gw);
                               setReceiptImage(null);
                             }}
-                            className={`p-6 rounded-[2rem] border-2 transition-all text-left flex items-center gap-4 group ${
+                            className={`p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all text-left flex items-center gap-4 group ${
                               isSelected
                                 ? "border-brand-blue bg-blue-50/50"
                                 : "border-gray-50 hover:border-gray-200 bg-white"
                             }`}
                           >
                             <div
-                              className={`w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm flex-shrink-0 ${isSelected ? "ring-2 ring-brand-blue" : ""}`}
+                              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm flex-shrink-0 ${isSelected ? "ring-2 ring-brand-blue" : ""}`}
                             >
                               <img
                                 src={`${gw.image}`}
@@ -718,9 +767,9 @@ const CheckoutPage = ({
                         exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-8 p-8 bg-blue-50/50 rounded-3xl border border-blue-100 space-y-5">
+                        <div className="mt-6 sm:mt-8 p-6 sm:p-8 bg-blue-50/50 rounded-3xl border border-blue-100 space-y-5">
                           {selectedGateway.value && (
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                               <p className="text-xs font-bold text-brand-blue uppercase tracking-widest">
                                 Transfer To
                               </p>
@@ -734,7 +783,7 @@ const CheckoutPage = ({
                                       "/placeholder.png";
                                   }}
                                 />
-                                <span className="font-black text-brand-dark font-mono text-sm tracking-widest">
+                                <span className="font-black text-brand-dark font-mono text-sm tracking-widest break-all">
                                   {selectedGateway.value}
                                 </span>
                               </div>
@@ -746,7 +795,7 @@ const CheckoutPage = ({
                               <p className="text-xs font-bold text-brand-blue uppercase tracking-widest mb-4">
                                 Upload Payment Receipt
                               </p>
-                              <label className="border-2 border-dashed border-blue-200 rounded-[2rem] p-10 text-center relative group cursor-pointer hover:bg-white transition-colors flex flex-col items-center">
+                              <label className="border-2 border-dashed border-blue-200 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-10 text-center relative group cursor-pointer hover:bg-white transition-colors flex flex-col items-center">
                                 <input
                                   type="file"
                                   accept="image/*"
@@ -760,9 +809,9 @@ const CheckoutPage = ({
                                     <img
                                       src={URL.createObjectURL(receiptImage)}
                                       alt="receipt preview"
-                                      className="w-24 h-24 object-cover rounded-2xl mb-4 shadow-sm"
+                                      className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl mb-4 shadow-sm"
                                     />
-                                    <p className="text-sm font-bold text-brand-dark">
+                                    <p className="text-sm font-bold text-brand-dark break-all px-2">
                                       {receiptImage.name}
                                     </p>
                                     <p className="text-[10px] text-gray-400 mt-1">
@@ -798,11 +847,11 @@ const CheckoutPage = ({
                   </p>
                 )}
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => setStep(1)}
                     disabled={submitting}
-                    className="px-8 py-4 rounded-2xl border border-gray-200 font-bold text-gray-500 hover:bg-white transition-all disabled:opacity-50"
+                    className="px-8 py-3.5 sm:py-4 rounded-2xl border border-gray-200 font-bold text-gray-500 hover:bg-white transition-all disabled:opacity-50 order-2 sm:order-1"
                   >
                     Back
                   </button>
@@ -813,7 +862,7 @@ const CheckoutPage = ({
                       !selectedGateway ||
                       (selectedGateway.requires_receipt === 1 && !receiptImage)
                     }
-                    className="flex-1 bg-brand-blue hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-3"
+                    className="flex-1 bg-brand-blue hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 sm:py-4 rounded-2xl transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-3 order-1 sm:order-2"
                   >
                     {submitting ? (
                       <>
@@ -833,10 +882,12 @@ const CheckoutPage = ({
           </div>
 
           {/* ── Order Summary ── */}
-          <div className="lg:col-span-4 sticky top-32">
-            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold mb-8">Order Summary</h2>
-              <div className="space-y-6 mb-8 overflow-y-auto max-h-[300px] pr-2 scrollbar-hide">
+          <div className="lg:col-span-4 order-1 lg:order-2 lg:sticky lg:top-32">
+            <div className="bg-white rounded-[1.75rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-sm border border-gray-100">
+              <h2 className="text-lg sm:text-xl font-bold mb-6 sm:mb-8">
+                Order Summary
+              </h2>
+              <div className="space-y-6 mb-8 overflow-y-auto max-h-[260px] sm:max-h-[300px] pr-2 scrollbar-hide">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
@@ -868,7 +919,7 @@ const CheckoutPage = ({
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                     Delivering to
                   </p>
-                  <p className="text-sm font-bold text-brand-dark">
+                  <p className="text-sm font-bold text-brand-dark break-words">
                     {selectedGovernorate.name}
                     {selectedBranch ? ` — ${selectedBranch.name}` : ""}
                   </p>
@@ -892,7 +943,7 @@ const CheckoutPage = ({
                     {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
                   </span>
                 </div>
-                <div className="flex justify-between text-lg font-black text-brand-dark pt-4 border-t border-gray-50 border-dashed">
+                <div className="flex justify-between text-base sm:text-lg font-black text-brand-dark pt-4 border-t border-gray-50 border-dashed">
                   <span>Total</span>
                   <span className="text-brand-blue">${total.toFixed(2)}</span>
                 </div>

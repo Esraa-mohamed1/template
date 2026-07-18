@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
   Star,
@@ -8,6 +8,7 @@ import {
   Minus,
   Plus,
   ShoppingBag,
+  Check,
   ShieldCheck,
   Truck,
 } from "lucide-react";
@@ -21,6 +22,12 @@ interface ProductPageProps {
   onBack: () => void;
   onAddToCart: (p: ProductDetail, q: number, variant?: any) => void;
   onNavigateToLogin?: () => void;
+}
+
+interface Particle {
+  id: number;
+  angle: number;
+  dist: number;
 }
 
 const ProductPage = ({
@@ -38,6 +45,11 @@ const ProductPage = ({
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+
+  // ── حالة أنيميشن الـ particles بتاعة "Add to Cart" ──
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [justAdded, setJustAdded] = useState(false);
+  const particleIdRef = useRef(0);
 
   const currentUserId = (() => {
     try {
@@ -116,8 +128,24 @@ const ProductPage = ({
     (v) => v.color === selectedColor && v.size === selectedSize,
   );
 
+  // ── تنفيذ الإضافة + تشغيل انفجار الـ particles حوالين الزرار ──
   const handleAddToCart = () => {
+    const batch: Particle[] = Array.from({ length: 8 }, (_, i) => ({
+      id: particleIdRef.current++,
+      angle: (Math.PI * 2 * i) / 8,
+      dist: 28 + Math.random() * 14,
+    }));
+    setParticles((prev) => [...prev, ...batch]);
+    window.setTimeout(() => {
+      setParticles((prev) =>
+        prev.filter((p) => !batch.some((b) => b.id === p.id)),
+      );
+    }, 500);
+
     onAddToCart(product, quantity, selectedVariant);
+
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 1200);
   };
 
   const handleReviewSaved = () => {
@@ -306,13 +334,63 @@ const ProductPage = ({
                     <Plus size={16} />
                   </button>
                 </div>
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-brand-blue hover:bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-100 transition-all flex items-center justify-center gap-3"
-                >
-                  <ShoppingBag size={20} />
-                  Add to Cart
-                </button>
+                <div className="relative flex-1">
+                  <motion.button
+                    onClick={handleAddToCart}
+                    whileTap={{ scale: 0.95 }}
+                    animate={justAdded ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className={`w-full font-bold py-4 rounded-2xl shadow-lg transition-colors flex items-center justify-center gap-3 ${
+                      justAdded
+                        ? "bg-green-500 shadow-green-100 text-white"
+                        : "bg-brand-blue hover:bg-blue-600 shadow-blue-100 text-white"
+                    }`}
+                  >
+                    {justAdded ? (
+                      <>
+                        <Check size={20} />
+                        Added
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag size={20} />
+                        Add to Cart
+                      </>
+                    )}
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {particles.map((p) => (
+                      <motion.span
+                        key={p.id}
+                        initial={{
+                          x: "-50%",
+                          y: "-50%",
+                          opacity: 1,
+                          scale: 1,
+                        }}
+                        animate={{
+                          x: `calc(-50% + ${Math.cos(p.angle) * p.dist}px)`,
+                          y: `calc(-50% + ${Math.sin(p.angle) * p.dist - 10}px)`,
+                          opacity: 0,
+                          scale: 0.4,
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5, ease: [0.2, 0, 0.3, 1] }}
+                        style={{
+                          position: "absolute",
+                          left: "50%",
+                          top: "50%",
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          backgroundColor: "#2563eb",
+                          pointerEvents: "none",
+                        }}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
 
