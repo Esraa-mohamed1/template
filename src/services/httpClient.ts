@@ -1,5 +1,6 @@
 // src/services/httpClient.ts
 import { API_BASE_URL } from "../config/api";
+import { tokenStorage } from "./authClient";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -36,11 +37,14 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const url = buildUrl(path, params);
 
+  const token = tokenStorage.get();
+
   const response = await fetch(url, {
     ...rest,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
   });

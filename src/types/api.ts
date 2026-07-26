@@ -145,6 +145,28 @@ export interface ProductDetail {
   category: ProductCategory;
   gallery: ProductGalleryImage[];
   variants: ProductVariant[];
+  reviews: Review[];
+}
+
+export interface ReviewUser {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
+
+export interface Review {
+  id: number;
+  product_id: number;
+  user_id: number | null;
+  guest_name: string | null;
+  rating: number;
+  comment: string;
+  emoji?: string;
+  is_approved: number;
+  created_at: string;
+  updated_at: string | null;
+  user: ReviewUser | null;
 }
 
 /////
@@ -206,4 +228,53 @@ export interface OtpVerifyResponse {
   success: boolean;
   status?: number;
   message: string;
+}
+
+export interface AppSetting {
+  id: number;
+  key: string;
+  value: string;
+  type: "boolean" | "string" | "number" | "json";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppSettingsMap {
+  show_comments_on_products?: boolean;
+  require_login_to_comment?: boolean;
+  [key: string]: boolean | string | number | undefined;
+}
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: "percentage" | "fixed";
+  value: string;
+  min_order_amount: string;
+  max_uses: number;
+  used_count: number;
+  expires_at: string;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApplyCouponPayload {
+  code: string;
+  subtotal: number;
+}
+
+export interface Branch {
+  id: number;
+  name: string;
+  address?: string | null;
+  shipping_price: number | null;
+}
+
+export interface Governorate {
+  id: number;
+  name: string;
+  slug: string;
+  shipping_price: number | null;
+  branches: Branch[];
 }

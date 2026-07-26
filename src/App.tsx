@@ -8,6 +8,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // Layout & Navigation
 import Navbar from "./components/layout/Navbar";
@@ -21,15 +22,14 @@ import CartPage from "./pages/CartPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
-import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutPage, { OrderPayload } from "./pages/CheckoutPage";
 import BuilderPage from "./pages/BuilderPage";
-import AdminLogin from "./components/admin/AdminLogin";
 import PagesPage from "./integrate/PagesPage";
 import BuilderPageAcademic from "./integrate/BuilderPage";
 
 import { User, Order, Transaction, CartItem } from "./types";
 import { ProductDetail } from "./types/api";
-import * as orderService from "./services/orderService";
+import { Coupon } from "./types/api";
 import { authService, authStorage } from "./services/authService";
 import { mapAuthUserToUser } from "./utils/mapUser";
 
@@ -41,8 +41,8 @@ function AppContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
-  // استرجاع الجلسة لو فيه token محفوظ
   useEffect(() => {
     const token = authStorage.get();
     if (!token) {
@@ -82,6 +82,7 @@ function AppContent() {
         ...prev,
         {
           id: String(product.id),
+          slug: product.slug,
           name: product.name,
           price: parseFloat(product.price),
           img: product.gallery?.[0]?.image ?? "/placeholder.png",
@@ -104,30 +105,57 @@ function AppContent() {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleCheckoutComplete = (method: string) => {
+  const handleCheckoutComplete = (
+    method: string,
+    _gatewayId?: number,
+    _receipt?: File | null,
+    orderData?: OrderPayload,
+    orderId?: number,
+  ) => {
     if (!currentUser) {
       navigate("/auth");
       return;
     }
 
-    const subtotal = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    );
-    const shipping = subtotal > 99 ? 0 : 15;
-    const orderTotal = subtotal + shipping;
+    if (orderId && orderData) {
+      const newOrder: Order = {
+        id: String(orderId),
+        date: new Date().toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        items: orderData.items.map((item) => ({
+          id: String(item.product_id),
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          img: "/placeholder.png",
+          slug: String(item.product_id),
+        })),
+        total: orderData.totals.total,
+        status: "Processing",
+      };
 
-    const newOrder = orderService.createOrder(cartItems, orderTotal);
-    const newTransaction = orderService.createTransaction(
-      newOrder.id,
-      orderTotal,
-      method,
-    );
+      const newTransaction: Transaction = {
+        id: `TRX-${orderId}`,
+        orderId: String(orderId),
+        date: new Date().toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        amount: orderData.totals.total,
+        method,
+        status: "Successful",
+      };
 
-    setOrders([newOrder, ...orders]);
-    setTransactions([newTransaction, ...transactions]);
-    alert("Order placed successfully! Thank you for shopping with E.buy.");
+      setOrders((prev) => [newOrder, ...prev]);
+      setTransactions((prev) => [newTransaction, ...prev]);
+    }
+
     setCartItems([]);
+    setAppliedCoupon(null);
     navigate("/");
   };
 
@@ -174,7 +202,7 @@ function AppContent() {
             path="/"
             element={
               <HomePage
-                onProductClick={(p: any) =>
+                onProductClick={(p: { slug?: string; id?: string }) =>
                   navigate(`/product/${p.slug ?? p.id}`)
                 }
                 onCategoryClick={(cat: string) =>
@@ -197,11 +225,19 @@ function AppContent() {
                 onBack={() => navigate("/")}
                 onUpdateQuantity={updateQuantity}
                 onRemove={removeFromCart}
-                onCheckout={() => {
+                onLoginRequired={() => navigate("/auth")}
+                onCheckout={(coupon) => {
+                  setAppliedCoupon(coupon);
                   if (currentUser) {
                     navigate("/checkout");
                   } else {
-                    alert("Please sign in to proceed with checkout.");
+                    Swal.fire({
+                      icon: "info",
+                      title: "سجّل دخولك الأول",
+                      text: "لازم تسجل دخول عشان تكمل عملية الشراء",
+                      confirmButtonText: "تمام",
+                      confirmButtonColor: "#2563eb",
+                    });
                     navigate("/auth");
                   }
                 }}
@@ -261,6 +297,15 @@ function AppContent() {
                 items={cartItems}
                 onBack={() => navigate("/cart")}
                 onComplete={handleCheckoutComplete}
+                currentUser={
+                  currentUser
+                    ? {
+                        name: currentUser.name,
+                        email: currentUser.email,
+                        phone: currentUser.phone ?? undefined,
+                      }
+                    : undefined
+                }
               />
             }
           />
@@ -268,25 +313,25 @@ function AppContent() {
           <Route
             path="/admin/builder"
             element={
-              <BuilderPage 
-                currentUser={currentUser || {
-                  id: 'admin-auto',
-                  name: 'المسؤول العام',
-                  email: 'admin@darab.academy',
-                  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-                  joinedAt: new Date().getFullYear().toString(),
-                  role: 'admin',
-                  isVerified: true
-                }} 
-                onLogout={handleLogout} 
+              <BuilderPage
+                currentUser={
+                  currentUser || {
+                    id: "admin-auto",
+                    name: "المسؤول العام",
+                    email: "admin@darab.academy",
+                    avatar:
+                      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+                    joinedAt: new Date().getFullYear().toString(),
+                    role: "admin",
+                    isVerified: true,
+                  }
+                }
+                onLogout={handleLogout}
               />
             }
           />
 
-          <Route
-            path="/academic/website/pages"
-            element={<PagesPage />}
-          />
+          <Route path="/academic/website/pages" element={<PagesPage />} />
 
           <Route
             path="/academic/website/builder"
@@ -310,7 +355,6 @@ function AppContent() {
   );
 }
 
-// Reads :id (id or slug) from the URL and lets ProductPage fetch its own data
 function ProductPageWrapper({ onAddToCart }: { onAddToCart: any }) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -325,6 +369,7 @@ function ProductPageWrapper({ onAddToCart }: { onAddToCart: any }) {
       productId={id}
       onBack={() => navigate(-1)}
       onAddToCart={onAddToCart}
+      onNavigateToLogin={() => navigate("/auth")}
     />
   );
 }

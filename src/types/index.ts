@@ -29,6 +29,7 @@ export interface Transaction {
 export interface Product {
   name: string;
   price: number;
+  slug?: string;
   img: string;
   oldPrice?: number;
   discount?: number;
@@ -36,7 +37,7 @@ export interface Product {
   id?: string;
   description?: string;
   gallery?: string[];
-  category?: string; // ✅ optional
+  category?: string;
 }
 
 export interface CartItem extends Product {

@@ -87,6 +87,7 @@ const CategoriesPage = ({
 
   const toProduct = (p: CategoryProduct): Product => ({
     id: String(p.id),
+    slug: p.slug,
     name: p.name,
     price: parseFloat(p.price),
     oldPrice: parseFloat(p.compare_price),

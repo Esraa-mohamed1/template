@@ -34,4 +34,21 @@ export const ENDPOINTS = {
     list: "/home-sections",
     detail: (id: number) => `/home-sections/${id}`,
   },
+  settings: {
+    list: "/settings",
+  },
+  reviews: {
+    create: (productId: number) => `/reviews`,
+    update: (reviewId: number) => `/reviews/${reviewId}`,
+  },
+  paymentGateways: {
+    list: "/payment-getway",
+  },
+  coupons: {
+    list: "/coupons",
+    apply: "/coupons/apply",
+  },
+  orders: {
+    create: "/order",
+  },
 };

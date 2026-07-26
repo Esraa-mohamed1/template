@@ -33,7 +33,7 @@ function AmazonCard({
       <h3 style={{ color: textColor }} className="text-base font-bold mb-4">{title}</h3>
       <div className="grid grid-cols-2 gap-3 mb-4">
         {items.map((item, idx) => (
-          <div key={idx} className="flex flex-col gap-1 cursor-pointer" key={idx}>
+          <div key={idx} className="flex flex-col gap-1 cursor-pointer">
             <div className="aspect-square rounded-xl overflow-hidden bg-slate-50 relative">
               <img 
                 src={item.img} 
